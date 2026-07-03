@@ -156,8 +156,9 @@
         <item name="android:letterSpacing">0.04</item>
     </style>
 
-    <style name="DiaryPopupTheme" parent="ThemeOverlay.MaterialComponents.Light">
-        <item name="android:textColorPrimary">?android:attr/textColorPrimary</item>
+    <style name="DiaryPopupTheme" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:textColorPrimary">#DE000000</item>
+        <item name="android:textColorSecondary">#8A000000</item>
     </style>
 
     <style name="DiaryPopupTheme.Classic" parent="DiaryPopupTheme">
@@ -166,11 +167,13 @@
 
     <style name="DiaryPopupTheme.Kawaii" parent="DiaryPopupTheme">
         <item name="android:popupBackground">@drawable/bg_popup_menu_kawaii</item>
+        <item name="android:textColorPrimary">#FF6B4A5A</item>
     </style>
 
-    <style name="DiaryPopupTheme.Cool" parent="ThemeOverlay.MaterialComponents.Dark">
+    <style name="DiaryPopupTheme.Cool" parent="ThemeOverlay.AppCompat.Dark">
         <item name="android:popupBackground">@drawable/bg_popup_menu_cool</item>
         <item name="android:textColorPrimary">@color/cool_text_primary</item>
+        <item name="android:textColorSecondary">@color/cool_text_secondary</item>
     </style>
 
     <style name="DiaryFab" parent="Widget.MaterialComponents.FloatingActionButton">

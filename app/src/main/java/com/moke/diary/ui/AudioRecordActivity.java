@@ -24,6 +24,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
+/**
+ * 音频录制页面。
+ * 使用 MediaRecorder 录制 AAC/M4A 格式音频，完成后通过 Intent 返回文件路径供编辑页保存。
+ */
 public class AudioRecordActivity extends BaseThemedActivity {
 
     private static final int PERMISSION_REQUEST = 1001;
@@ -83,6 +87,7 @@ public class AudioRecordActivity extends BaseThemedActivity {
         }
     }
 
+    /** 切换录音状态：未录音时开始，录音中则停止并保存。 */
     private void toggleRecording() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -101,6 +106,7 @@ public class AudioRecordActivity extends BaseThemedActivity {
         }
     }
 
+    /** 创建临时输出文件并启动 MediaRecorder，同时开始计时更新 UI。 */
     private void startRecording() {
         try {
             outputFile = MediaCaptureHelper.createCaptureFile(this, com.moke.diary.model.MediaType.AUDIO);
@@ -127,6 +133,10 @@ public class AudioRecordActivity extends BaseThemedActivity {
         }
     }
 
+    /**
+     * 停止录音并释放资源。
+     * {@code save} 为 true 且文件有效时，通过 {@link #EXTRA_OUTPUT_PATH} 返回路径并结束 Activity。
+     */
     private void stopRecording(boolean save) {
         handler.removeCallbacks(timerRunnable);
         if (mediaRecorder != null) {
@@ -158,6 +168,7 @@ public class AudioRecordActivity extends BaseThemedActivity {
         }
     }
 
+    /** 取消录制：停止录音但不保存，以 RESULT_CANCELED 结束。 */
     private void finishCancelled() {
         if (recording) {
             stopRecording(false);

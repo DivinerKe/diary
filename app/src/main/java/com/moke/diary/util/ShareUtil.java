@@ -21,11 +21,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * 日记分享工具。
+ * 将日记标题、心情、时间与正文组装为分享文本，并渲染带背景色的卡片图片一并分享。
+ */
 public final class ShareUtil {
 
     private ShareUtil() {
     }
 
+    /**
+     * 调起系统分享面板，优先附带渲染后的日记卡片图片；图片生成失败时降级为纯文本分享。
+     */
     public static void shareDiary(Context context, DiaryEntry entry, String decryptedContent) {
         String shareText = buildShareText(entry, decryptedContent);
         Intent intent = new Intent(Intent.ACTION_SEND);
@@ -59,6 +66,7 @@ public final class ShareUtil {
                 + content;
     }
 
+    /** 将日记内容绘制为 PNG 图片，使用日记背景色作为画布底色。 */
     private static File createShareImage(Context context, DiaryEntry entry, String content)
             throws IOException {
         int width = 1080;

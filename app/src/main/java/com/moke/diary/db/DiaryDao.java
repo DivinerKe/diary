@@ -15,9 +15,14 @@ import com.moke.diary.model.MediaAttachment;
 
 import java.util.List;
 
+/**
+ * 日记数据访问对象。
+ * 提供日记、媒体附件、修订记录的 CRUD 及联表查询；备份恢复时使用 upsert 与 deleteAll 方法。
+ */
 @Dao
 public interface DiaryDao {
 
+    /** 获取全部日记及其媒体附件，按更新时间倒序 */
     @Transaction
     @Query("SELECT * FROM diary_entries ORDER BY updatedAt DESC")
     List<DiaryWithMedia> getAllDiaries();
@@ -41,6 +46,7 @@ public interface DiaryDao {
     @Insert
     long insertDiary(DiaryEntry entry);
 
+    /** 备份合并恢复时使用，按主键 id 覆盖已有记录 */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long upsertDiary(DiaryEntry entry);
 
@@ -77,6 +83,7 @@ public interface DiaryDao {
     @Query("SELECT COUNT(*) FROM diary_entries")
     int getDiaryCount();
 
+    /** 全量恢复前清空修订记录 */
     @Query("DELETE FROM diary_revisions")
     void deleteAllRevisions();
 

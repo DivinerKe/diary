@@ -20,8 +20,13 @@ import com.moke.diary.util.DateUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 日记列表 RecyclerView 适配器。
+ * 展示标题、心情、内容预览、更新时间、加密标识及附件数量，并根据背景色自适应文字颜色。
+ */
 public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.ViewHolder> {
 
+    /** 日记条目点击回调。 */
     public interface OnDiaryClickListener {
         void onDiaryClick(DiaryWithMedia diary);
     }
@@ -33,6 +38,7 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.ViewHolder> 
         this.listener = listener;
     }
 
+    /** 替换列表数据并刷新全部条目。 */
     public void setItems(List<DiaryWithMedia> diaries) {
         items.clear();
         if (diaries != null) {
@@ -49,6 +55,9 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.ViewHolder> 
         return new ViewHolder(view);
     }
 
+    /**
+     * 绑定单条日记数据：加密日记显示占位文案，并根据背景亮度切换文字颜色以保证可读性。
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Context context = holder.itemView.getContext();
@@ -105,6 +114,7 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.ViewHolder> 
         return items.size();
     }
 
+    /** 根据背景色亮度判断是否为浅色，用于选择黑/白文字。 */
     private static boolean isLightColor(int color) {
         double luminance = (0.299 * Color.red(color) + 0.587 * Color.green(color)
                 + 0.114 * Color.blue(color)) / 255;

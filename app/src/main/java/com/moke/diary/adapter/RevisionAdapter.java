@@ -17,10 +17,15 @@ import com.moke.diary.util.DateUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 日记修订历史时间线适配器。
+ * 按时间倒序展示每次修订的操作类型、变更详情或标题预览。
+ */
 public class RevisionAdapter extends RecyclerView.Adapter<RevisionAdapter.ViewHolder> {
 
     private final List<DiaryRevision> items = new ArrayList<>();
 
+    /** 替换修订记录列表并刷新。 */
     public void setItems(List<DiaryRevision> revisions) {
         items.clear();
         if (revisions != null) {
@@ -37,6 +42,10 @@ public class RevisionAdapter extends RecyclerView.Adapter<RevisionAdapter.ViewHo
         return new ViewHolder(view);
     }
 
+    /**
+     * 绑定单条修订记录：有变更日志时展示详细 diff，否则展示标题与心情预览；
+     * 列表末项（最早记录）标记为「创建」，其余为「编辑」。
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DiaryRevision revision = items.get(position);

@@ -13,6 +13,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * 日记修订差异分析工具。
+ * 对比保存前后的标题、正文、心情、背景色及媒体附件，生成可读的变更日志供修订历史展示。
+ */
 public final class RevisionDiffHelper {
 
     private static final int SNIPPET_LENGTH = 60;
@@ -20,6 +24,10 @@ public final class RevisionDiffHelper {
     private RevisionDiffHelper() {
     }
 
+    /**
+     * 对比新旧版本各字段差异并组装变更日志。
+     * 新建日记时记录初始内容；编辑时逐项比较，若无实质变化则标记为微调。
+     */
     public static String buildChangeLog(Context context,
                                         boolean isNew,
                                         String oldTitle,
@@ -77,6 +85,7 @@ public final class RevisionDiffHelper {
         return trimLog(log);
     }
 
+    /** 记录正文变更：加密内容仅提示已加密，明文则逐行对比增删或整体更新。 */
     private static void appendContentLog(Context context,
                                          StringBuilder log,
                                          String oldContent,
@@ -121,6 +130,7 @@ public final class RevisionDiffHelper {
         }
     }
 
+    /** 对比新旧附件列表，记录新增与移除的媒体文件。 */
     private static void appendMediaDiff(Context context,
                                         StringBuilder log,
                                         List<MediaAttachment> oldMedia,

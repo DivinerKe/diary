@@ -6,6 +6,10 @@ import android.net.Uri;
 
 import java.util.List;
 
+/**
+ * 备份位置持久化存储。
+ * 保存用户通过 SAF 授权的目录树 Uri 及手动选择的文件 Uri，供 BackupManager 读写备份。
+ */
 final class BackupLocationStore {
 
     private static final String PREFS = "backup_location";
@@ -15,6 +19,7 @@ final class BackupLocationStore {
     private BackupLocationStore() {
     }
 
+    /** 保存目录树 Uri 并申请持久读写权限 */
     static void saveTreeUri(Context context, Uri treeUri) {
         context.getApplicationContext()
                 .getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -23,8 +28,10 @@ final class BackupLocationStore {
                 .apply();
         int flags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
         context.getContentResolver().takePersistableUriPermission(treeUri, flags);
+        MokeLog.d("[Backup] 保存 SAF 目录：" + treeUri);
     }
 
+    /** 记录用户手动选取的单个备份文件 Uri */
     static void saveFileUri(Context context, Uri fileUri) {
         context.getApplicationContext()
                 .getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -43,6 +50,7 @@ final class BackupLocationStore {
         return Uri.parse(value);
     }
 
+    /** 获取已授权且仍有效的 SAF 目录 Uri，权限失效时返回 null */
     static Uri getTreeUri(Context context) {
         String value = context.getApplicationContext()
                 .getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -52,11 +60,13 @@ final class BackupLocationStore {
         }
         Uri uri = Uri.parse(value);
         if (!hasPersistedPermission(context, uri)) {
+            MokeLog.w("[Backup] SAF 目录权限已失效");
             return null;
         }
         return uri;
     }
 
+    /** 检查 Uri 是否仍在系统持久授权列表中 */
     static boolean hasPersistedPermission(Context context, Uri uri) {
         List<android.content.UriPermission> permissions =
                 context.getContentResolver().getPersistedUriPermissions();

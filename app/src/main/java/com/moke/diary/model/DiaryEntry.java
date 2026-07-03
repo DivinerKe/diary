@@ -3,6 +3,9 @@ package com.moke.diary.model;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+/**
+ * 日记条目实体，对应表 diary_entries。
+ */
 @Entity(tableName = "diary_entries")
 public class DiaryEntry {
 
@@ -11,8 +14,10 @@ public class DiaryEntry {
 
     public String title;
     public String content;
+    /** 心情枚举名，如 HAPPY、NEUTRAL */
     public String mood;
     public int backgroundColor;
+    /** 正文是否 AES 加密存储 */
     public boolean encrypted;
     public long createdAt;
     public long updatedAt;

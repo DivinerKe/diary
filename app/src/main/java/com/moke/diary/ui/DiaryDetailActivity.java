@@ -23,12 +23,18 @@ import com.moke.diary.model.Mood;
 import com.moke.diary.util.CryptoUtil;
 import com.moke.diary.util.DateUtil;
 import com.moke.diary.util.LockSession;
+import com.moke.diary.util.MokeLog;
 import com.moke.diary.util.ShareUtil;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * 日记详情页。
+ * 展示日记正文、媒体附件与修订历史时间线，支持编辑、分享与删除操作；
+ * 加密日记需借助当前会话密码解密后展示。
+ */
 public class DiaryDetailActivity extends BaseLockActivity {
 
     private static final String EXTRA_DIARY_ID = "diary_id";
@@ -41,6 +47,7 @@ public class DiaryDetailActivity extends BaseLockActivity {
     private String decryptedContent;
     private String sessionPassword;
 
+    /** 创建打开指定日记详情的 Intent。 */
     public static Intent createIntent(Context context, long diaryId) {
         Intent intent = new Intent(context, DiaryDetailActivity.class);
         intent.putExtra(EXTRA_DIARY_ID, diaryId);
@@ -63,6 +70,7 @@ public class DiaryDetailActivity extends BaseLockActivity {
         loadDiary();
     }
 
+    /** 后台加载日记及修订记录，加密条目走解密流程后再渲染 UI。 */
     private void loadDiary() {
         executor.execute(() -> {
             DiaryWithMedia diary = diaryDao.getDiaryById(diaryId);
@@ -70,6 +78,7 @@ public class DiaryDetailActivity extends BaseLockActivity {
 
             runOnUiThread(() -> {
                 if (diary == null) {
+                    MokeLog.w("[Detail] 日记不存在 id=" + diaryId);
                     finish();
                     return;
                 }
@@ -84,6 +93,7 @@ public class DiaryDetailActivity extends BaseLockActivity {
         });
     }
 
+    /** 使用会话密码解密日记正文，解密失败则提示并关闭页面。 */
     private void decryptAndDisplay(DiaryWithMedia diary, List<DiaryRevision> revisions) {
         String password = LockSession.getSessionPassword();
         if (password == null) {
@@ -101,6 +111,7 @@ public class DiaryDetailActivity extends BaseLockActivity {
         }
     }
 
+    /** 将日记基本信息、附件列表（只读）与修订时间线绑定到界面。 */
     private void displayDiary(DiaryWithMedia diary, List<DiaryRevision> revisions) {
         binding.detailContainer.setBackgroundColor(currentEntry.backgroundColor);
         binding.titleText.setText(currentEntry.title);
@@ -152,7 +163,9 @@ public class DiaryDetailActivity extends BaseLockActivity {
                 .show();
     }
 
+    /** 弹出确认对话框后于后台线程删除日记并关闭页面。 */
     private void deleteDiary() {
+        MokeLog.d("[Detail] 删除日记 id=" + diaryId);
         executor.execute(() -> {
             diaryDao.deleteDiary(currentEntry);
             runOnUiThread(() -> {

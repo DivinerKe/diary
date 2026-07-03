@@ -10,6 +10,10 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * 密码哈希与 AES-GCM 加解密工具。
+ * 锁屏密码使用 SHA-256 哈希；单篇日记正文使用用户密码派生密钥进行 AES-GCM 加密。
+ */
 public final class CryptoUtil {
 
     private static final String ALGORITHM = "AES/GCM/NoPadding";
@@ -19,6 +23,7 @@ public final class CryptoUtil {
     private CryptoUtil() {
     }
 
+    /** 对密码做 SHA-256 哈希，Base64 编码后存储 */
     public static String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -29,6 +34,7 @@ public final class CryptoUtil {
         }
     }
 
+    /** 加密日记正文，输出为 Base64(IV + 密文) */
     public static String encrypt(String plainText, String password) {
         try {
             byte[] iv = new byte[GCM_IV_LENGTH];
@@ -47,6 +53,7 @@ public final class CryptoUtil {
         }
     }
 
+    /** 解密由 {@link #encrypt} 产生的密文 */
     public static String decrypt(String cipherText, String password) {
         try {
             byte[] combined = Base64.decode(cipherText, Base64.NO_WRAP);
@@ -64,6 +71,7 @@ public final class CryptoUtil {
         }
     }
 
+    /** 从用户密码派生 256 位 AES 密钥 */
     private static SecretKeySpec deriveKey(String password) throws Exception {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] key = digest.digest(password.getBytes(StandardCharsets.UTF_8));

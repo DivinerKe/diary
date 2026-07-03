@@ -23,8 +23,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 媒体附件列表适配器。
+ * 支持只读预览与编辑模式：编辑模式下可删除附件，点击条目调起系统应用打开媒体文件。
+ */
 public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> {
 
+    /** 编辑模式下移除附件的回调。 */
     public interface OnMediaRemoveListener {
         void onRemove(int position, MediaAttachment attachment);
     }
@@ -41,6 +46,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
         this.removeListener = listener;
     }
 
+    /** 替换附件列表并刷新。 */
     public void setItems(List<MediaAttachment> attachments) {
         items.clear();
         if (attachments != null) {
@@ -53,6 +59,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
         return new ArrayList<>(items);
     }
 
+    /** 追加一条新附件并通知插入。 */
     public void addItem(MediaAttachment attachment) {
         items.add(attachment);
         notifyItemInserted(items.size() - 1);
@@ -66,6 +73,10 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
         return new ViewHolder(view);
     }
 
+    /**
+     * 绑定附件信息：图片显示缩略图，音频/视频显示对应图标；
+     * 编辑模式显示删除按钮，点击条目通过 FileProvider 打开外部查看器。
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MediaAttachment attachment = items.get(position);
@@ -92,6 +103,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
         holder.itemView.setOnClickListener(v -> openMedia(holder, attachment, type));
     }
 
+    /** 通过 FileProvider 生成 URI 并调起系统应用预览图片、音频或视频。 */
     private void openMedia(ViewHolder holder, MediaAttachment attachment, MediaType type) {
         File file = new File(attachment.filePath);
         if (!file.exists()) {

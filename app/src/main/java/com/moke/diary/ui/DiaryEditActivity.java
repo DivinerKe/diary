@@ -36,6 +36,7 @@ import com.moke.diary.util.LockSession;
 import com.moke.diary.util.BackupManager;
 import com.moke.diary.util.MediaCaptureHelper;
 import com.moke.diary.util.MediaStorage;
+import com.moke.diary.util.MokeLog;
 import com.moke.diary.util.PasswordManager;
 import com.moke.diary.util.RevisionDiffHelper;
 
@@ -46,13 +47,20 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * 日记新建/编辑页。
+ * 支持标题正文、心情、背景色、媒体附件、单篇加密；
+ * 保存时生成修订记录并触发异步备份。
+ */
 public class DiaryEditActivity extends BaseLockActivity {
 
+    /** 待执行的拍照/录像/录音操作，用于权限回调后继续 */
     private enum PendingCapture {
         NONE, TAKE_PHOTO, RECORD_VIDEO, RECORD_AUDIO
     }
 
     private static final String EXTRA_DIARY_ID = "diary_id";
+    /** 可选的背景色板 */
     private static final int[] BACKGROUND_COLORS = {
             0xFFFFFFFF, 0xFFFFF3E0, 0xFFE8F5E9, 0xFFE3F2FD,
             0xFFF3E5F5, 0xFFFFEBEE, 0xFFE0F7FA, 0xFFFFFDE7
@@ -62,11 +70,14 @@ public class DiaryEditActivity extends BaseLockActivity {
     private DiaryDao diaryDao;
     private ExecutorService executor;
     private MediaAdapter mediaAdapter;
+    /** -1 表示新建，大于 0 表示编辑已有日记 */
     private long diaryId = -1;
     private DiaryEntry existingEntry;
     private int selectedColor = BACKGROUND_COLORS[0];
     private Mood selectedMood = Mood.NEUTRAL;
+    /** 当前编辑中的媒体列表（含新增与已有） */
     private final List<MediaAttachment> pendingMedia = new ArrayList<>();
+    /** 打开编辑页时的快照，用于生成修订 diff */
     private final List<MediaAttachment> snapshotMedia = new ArrayList<>();
     private String sessionPassword;
     private String snapshotTitle = "";
@@ -118,6 +129,7 @@ public class DiaryEditActivity extends BaseLockActivity {
         }
     }
 
+    /** 注册相册选取、拍照、录像、录音及权限请求回调 */
     private void setupMediaPickers() {
         pickImageLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
@@ -187,6 +199,7 @@ public class DiaryEditActivity extends BaseLockActivity {
                 this::onPermissionsResult);
     }
 
+    /** 进入外部相机/相册时暂停自动上锁 */
     private void beginExternalCaptureSafely() {
         LockSession.beginExternalCapture();
     }
@@ -462,6 +475,7 @@ public class DiaryEditActivity extends BaseLockActivity {
         });
     }
 
+    /** 加载已有日记，加密内容需会话密码解密 */
     private void loadExistingDiary() {
         executor.execute(() -> {
             DiaryWithMedia diary = diaryDao.getDiaryById(diaryId);
@@ -520,6 +534,7 @@ public class DiaryEditActivity extends BaseLockActivity {
                 existingEntry.backgroundColor, pendingMedia);
     }
 
+    /** 记录编辑前状态，供 RevisionDiffHelper 对比生成 changeLog */
     private void takeSnapshot(String title,
                               String content,
                               String mood,
@@ -535,6 +550,7 @@ public class DiaryEditActivity extends BaseLockActivity {
         }
     }
 
+    /** 校验输入、处理加密开关，确认后写入数据库 */
     private void saveDiary() {
         String title = binding.titleInput.getText() != null
                 ? binding.titleInput.getText().toString().trim() : "";
@@ -562,6 +578,7 @@ public class DiaryEditActivity extends BaseLockActivity {
         performSave(title, content, encrypt);
     }
 
+    /** 执行 insert/update、同步媒体附件、写入修订记录并触发备份 */
     private void performSave(String title, String content, boolean encrypt) {
         executor.execute(() -> {
             long now = System.currentTimeMillis();
@@ -616,6 +633,9 @@ public class DiaryEditActivity extends BaseLockActivity {
                 attachment.diaryId = diaryId;
                 diaryDao.insertMedia(attachment);
             }
+
+            MokeLog.i("[Edit] 保存成功 id=" + diaryId + "，新建=" + isNew
+                    + "，加密=" + encrypt + "，媒体=" + pendingMedia.size());
 
             runOnUiThread(() -> {
                 Toast.makeText(this, R.string.save_success, Toast.LENGTH_SHORT).show();

@@ -41,24 +41,40 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * 日记备份与恢复管理器。
+ * <p>
+ * 负责将 Room 数据库中的日记、修订记录、媒体及安全配置导出为 zip，
+ * 并支持从 SAF 目录、传统文件路径、MediaStore 等多来源扫描并合并恢复。
+ * Android 11+ 优先使用 SAF 树 URI 写入，避免 MediaStore 孤儿文件问题。
+ */
 public final class BackupManager {
 
+    /** 标准备份文件名 */
     public static final String BACKUP_FILE_NAME = "diary_backup.zip";
+    /** 写入过程中的临时文件名，校验通过后再替换正式文件 */
     private static final String BACKUP_TEMP_NAME = "diary_backup.tmp.zip";
+    /** 备份所在文件夹名（位于 Documents 下） */
     private static final String BACKUP_FOLDER = "我的日记";
     private static final String BACKUP_RELATIVE_PATH = Environment.DIRECTORY_DOCUMENTS + "/" + BACKUP_FOLDER + "/";
+    /** backup.json 格式版本号 */
     private static final int BACKUP_VERSION = 1;
+    /** 扫描 diary_backup (N).zip 编号变体的上限 */
     private static final int MAX_NUMBERED_VARIANT = 20;
+    /** 异步备份防抖延迟：连续保存时合并为一次备份 */
     private static final long BACKUP_DEBOUNCE_MS = 2000L;
 
+    /** 主线程 Handler，用于延迟触发异步备份 */
     private static final Handler BACKUP_HANDLER = new Handler(Looper.getMainLooper());
     private static Runnable pendingBackup;
 
     private BackupManager() {
     }
 
+    /** 外部存储 DocumentsProvider 的 authority */
     private static final String EXTERNAL_STORAGE_AUTHORITY = "com.android.externalstorage.documents";
 
+    /** 创建 SAF 目录选择 Intent，用于授权备份写入位置 */
     public static Intent createOpenTreeIntent() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -68,6 +84,7 @@ public final class BackupManager {
         return intent;
     }
 
+    /** 创建文件选择 Intent，支持多选备份 zip（兼容部分 MTK 文件选择器） */
     public static Intent createOpenBackupIntent() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -84,6 +101,7 @@ public final class BackupManager {
         return intent;
     }
 
+    /** 从 GET_CONTENT / 多选结果中收集所有备份 Uri */
     public static List<Uri> collectUrisFromIntent(Intent data) {
         List<Uri> uris = new ArrayList<>();
         if (data == null) {
@@ -103,6 +121,7 @@ public final class BackupManager {
         return uris;
     }
 
+    /** 预览指定备份 zip 中包含的日记条数，失败返回 -1 */
     public static int countEntriesInBackup(Context context, Uri uri) {
         File tempZip = new File(context.getCacheDir(), "peek_" + BACKUP_FILE_NAME);
         try {
@@ -117,10 +136,15 @@ public final class BackupManager {
         }
     }
 
+    /**
+     * 清除应用数据后是否必须手动选文件夹恢复。
+     * 无 SAF 写入权限但检测到备份文件时为 true。
+     */
     public static boolean needsManualRestorePick(Context context) {
         return !hasWritableLocation(context) && detectBackupHint(context);
     }
 
+    /** 尝试持久化用户所选备份文件的读取权限 */
     public static void persistBackupReadPermission(Context context, Uri uri) {
         if (uri == null) {
             return;
@@ -134,6 +158,7 @@ public final class BackupManager {
         BackupLocationStore.saveFileUri(context, uri);
     }
 
+    /** 保存用户授权的 SAF 目录 Uri，供后续备份写入 */
     public static void saveTreeUri(Context context, Uri treeUri) {
         if (treeUri == null) {
             return;
@@ -141,6 +166,7 @@ public final class BackupManager {
         BackupLocationStore.saveTreeUri(context, treeUri);
     }
 
+    /** 是否存在可写入的备份位置（SAF 树或 Android 10 及以下直接写文件） */
     public static boolean hasWritableLocation(Context context) {
         if (BackupLocationStore.getTreeUri(context) != null) {
             return true;
@@ -167,26 +193,32 @@ public final class BackupManager {
         return findNewestBackupUri(context) != null;
     }
 
+    /** 导出全部日记到 zip 并写入备份目录，无日记时返回 false */
     public static boolean exportBackup(Context context) {
         try {
             DiaryDao dao = DiaryDatabase.getInstance(context).diaryDao();
             List<DiaryWithMedia> diaries = dao.getAllDiaries();
             if (diaries.isEmpty()) {
+                MokeLog.d("[Backup] export 跳过：无日记");
                 return false;
             }
             List<DiaryRevision> revisions = dao.getAllRevisions();
+            MokeLog.d("[Backup] export 开始，日记=" + diaries.size() + "，修订=" + revisions.size());
 
             File tempZip = new File(context.getCacheDir(), BACKUP_FILE_NAME);
             writeZip(tempZip, diaries, revisions, context);
             if (!isValidZip(tempZip)) {
+                MokeLog.e("[Backup] export 失败：zip 校验无效");
                 tempZip.delete();
                 return false;
             }
 
             boolean saved = saveBackupFile(context, tempZip);
             tempZip.delete();
+            MokeLog.d("[Backup] export " + (saved ? "成功" : "失败"));
             return saved;
         } catch (Exception e) {
+            MokeLog.e("[Backup] export 异常", e);
             return false;
         }
     }
@@ -205,6 +237,10 @@ public final class BackupManager {
         return importAllBackups(context, null, backupUris).success;
     }
 
+    /**
+     * 合并恢复：扫描所有可用来源的备份 zip，按时间从旧到新依次导入。
+     * 先清空本地数据库，再用 upsert 合并，避免多份历史备份各含部分日记的问题。
+     */
     public static RestoreResult importAllBackups(Context context, Uri restoreTreeUri, List<Uri> extraUris) {
         try {
             if (extraUris != null) {
@@ -214,8 +250,10 @@ public final class BackupManager {
             }
             List<BackupSource> sources = collectAllBackupSources(context, restoreTreeUri, extraUris);
             if (sources.isEmpty()) {
+                MokeLog.w("[Backup] restore 失败：未找到备份来源");
                 return RestoreResult.failed();
             }
+            MokeLog.d("[Backup] restore 开始，发现 " + sources.size() + " 个备份文件");
             sources.sort((a, b) -> Long.compare(a.lastModified, b.lastModified));
 
             DiaryDatabase db = DiaryDatabase.getInstance(context);
@@ -231,11 +269,13 @@ public final class BackupManager {
                         File tempZip = new File(context.getCacheDir(),
                                 "restore_all_" + index++ + "_" + BACKUP_FILE_NAME);
                         if (!source.copyTo(context, tempZip) || !isValidZip(tempZip)) {
+                            MokeLog.w("[Backup] restore 跳过无效文件：" + source.dedupeKey);
                             tempZip.delete();
                             continue;
                         }
                         importFromZip(tempZip, dao, context, false);
                         importedFiles[0]++;
+                        MokeLog.d("[Backup] restore 已导入：" + source.dedupeKey);
                         tempZip.delete();
                     }
                     resetAutoIncrement(db, "diary_entries");
@@ -247,12 +287,15 @@ public final class BackupManager {
             });
 
             int diaryCount = dao.getAllDiaries().size();
+            MokeLog.i("[Backup] restore 完成，文件=" + importedFiles[0] + "，日记=" + diaryCount);
             return new RestoreResult(diaryCount > 0, importedFiles[0], diaryCount);
         } catch (Exception e) {
+            MokeLog.e("[Backup] restore 异常", e);
             return RestoreResult.failed();
         }
     }
 
+    /** 恢复操作的结果：是否成功、合并的备份文件数、最终日记条数 */
     public static final class RestoreResult {
         public final boolean success;
         public final int backupFileCount;
@@ -269,17 +312,22 @@ public final class BackupManager {
         }
     }
 
+    /** 防抖异步备份：App 退到后台或保存日记后延迟触发 */
     public static void exportBackupAsync(Context context) {
         Context app = context.getApplicationContext();
         synchronized (BackupManager.class) {
             if (pendingBackup != null) {
                 BACKUP_HANDLER.removeCallbacks(pendingBackup);
             }
-            pendingBackup = () -> new Thread(() -> exportBackup(app)).start();
+            pendingBackup = () -> {
+                MokeLog.d("[Backup] 异步备份触发");
+                new Thread(() -> exportBackup(app)).start();
+            };
             BACKUP_HANDLER.postDelayed(pendingBackup, BACKUP_DEBOUNCE_MS);
         }
     }
 
+    /** 从 SAF 树、传统目录、MediaStore、用户额外选择的 Uri 收集全部备份来源 */
     private static List<BackupSource> collectAllBackupSources(
             Context context, Uri restoreTreeUri, List<Uri> extraUris) {
         Map<String, BackupSource> byKey = new LinkedHashMap<>();
@@ -308,6 +356,7 @@ public final class BackupManager {
             }
         }
 
+        MokeLog.d("[Backup] 扫描来源：" + byKey.keySet());
         return new ArrayList<>(byKey.values());
     }
 
@@ -446,19 +495,25 @@ public final class BackupManager {
         }
     }
 
+    /** 备份写入策略：SAF 树 → 直接写文件 → MediaStore（仅 Android 10 及以下） */
     private static boolean saveBackupFile(Context context, File source) {
         Uri treeUri = BackupLocationStore.getTreeUri(context);
         if (treeUri != null && writeViaSafTree(context, treeUri, source)) {
+            MokeLog.d("[Backup] 写入成功：SAF 树");
             return true;
         }
         if (writeViaFileSafe(source)) {
             cleanupStaleMediaStoreEntries(context);
+            MokeLog.d("[Backup] 写入成功：传统文件路径");
             return true;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            MokeLog.w("[Backup] 写入失败：Android 11+ 且无 SAF 权限");
             return false;
         }
-        return writeViaMediaStoreReplace(context, source);
+        boolean viaMediaStore = writeViaMediaStoreReplace(context, source);
+        MokeLog.d("[Backup] 写入" + (viaMediaStore ? "成功" : "失败") + "：MediaStore");
+        return viaMediaStore;
     }
 
     private static boolean writeViaSafTree(Context context, Uri treeUri, File source) {
@@ -878,6 +933,11 @@ public final class BackupManager {
         return -1;
     }
 
+    /**
+     * 从 zip 导入数据。
+     *
+     * @param replaceAll true 时先清空表再插入；false 时用 upsert 合并（多备份恢复）
+     */
     private static void importFromZip(File zipFile, DiaryDao dao, Context context, boolean replaceAll)
             throws Exception {
         JSONObject root = null;
@@ -1077,6 +1137,7 @@ public final class BackupManager {
         return true;
     }
 
+    /** 恢复后重置 SQLite 自增序列，避免新插入 ID 与已恢复 ID 冲突 */
     private static void resetAutoIncrement(DiaryDatabase db, String tableName) {
         db.getOpenHelper().getWritableDatabase().execSQL(
                 "INSERT OR REPLACE INTO sqlite_sequence (name, seq) "

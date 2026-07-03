@@ -3,6 +3,10 @@ package com.moke.diary.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+/**
+ * 应用锁屏密码与密保管理。
+ * 密码以 SHA-256 哈希存储；支持密保找回；配置可随备份 zip 导入导出。
+ */
 public final class PasswordManager {
 
     private static final String PREFS = "diary_security";
@@ -22,6 +26,7 @@ public final class PasswordManager {
         return prefs.contains(KEY_QUESTION) && prefs.contains(KEY_ANSWER_HASH);
     }
 
+    /** 首次设置密码，同时绑定密保问题与答案 */
     public static void setPasswordWithRecovery(Context context, String password,
                                                String question, String answer) {
         getPrefs(context).edit()
@@ -41,6 +46,7 @@ public final class PasswordManager {
         return true;
     }
 
+    /** 通过密保验证后重置密码 */
     public static boolean resetPassword(Context context, String newPassword) {
         getPrefs(context).edit()
                 .putString(KEY_HASH, CryptoUtil.hashPassword(newPassword))
@@ -68,6 +74,7 @@ public final class PasswordManager {
         return stored.equals(CryptoUtil.hashPassword(password));
     }
 
+    /** 导出安全配置到 backup.json 的 security 字段 */
     public static org.json.JSONObject exportSecurityJson(Context context) throws Exception {
         SharedPreferences prefs = getPrefs(context);
         org.json.JSONObject json = new org.json.JSONObject();
@@ -83,6 +90,7 @@ public final class PasswordManager {
         return json;
     }
 
+    /** 从备份恢复锁屏密码与密保设置 */
     public static void importSecurityJson(Context context, org.json.JSONObject json) {
         if (json == null || json.length() == 0) {
             return;
@@ -100,6 +108,7 @@ public final class PasswordManager {
         editor.apply();
     }
 
+    /** 密保答案统一转小写并去首尾空格后哈希 */
     private static String normalizeAnswer(String answer) {
         return answer == null ? "" : answer.trim().toLowerCase();
     }

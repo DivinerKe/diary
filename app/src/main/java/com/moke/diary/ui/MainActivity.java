@@ -34,6 +34,7 @@ import com.moke.diary.model.DiaryWithMedia;
 import com.moke.diary.model.Mood;
 import com.moke.diary.util.BackupManager;
 import com.moke.diary.util.LockSession;
+import com.moke.diary.util.MokeLog;
 import com.moke.diary.util.PasswordManager;
 import com.moke.diary.util.ThemeManager;
 
@@ -41,18 +42,24 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * 应用主界面：日记列表、搜索筛选、锁屏、备份恢复、主题与密码管理。
+ */
 public class MainActivity extends BaseThemedActivity {
 
     private ActivityMainBinding binding;
     private DiaryDao diaryDao;
     private DiaryAdapter adapter;
     private ExecutorService executor;
+    /** 当前选中的心情筛选，null 表示全部 */
     private String selectedMood = null;
     private View lockScreen;
     private TextInputEditText lockPasswordInput;
     private TextView lockEmojiText;
+    /** 选择备份目录后是否立即执行一次备份 */
     private boolean pendingBackupAfterFolder;
 
+    /** 用户授权备份写入目录（SAF OPEN_DOCUMENT_TREE） */
     private final ActivityResultLauncher<Intent> pickBackupFolderLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() != RESULT_OK || result.getData() == null) {
@@ -72,6 +79,7 @@ public class MainActivity extends BaseThemedActivity {
                 }
             });
 
+    /** 用户选择「我的日记」文件夹后触发合并恢复 */
     private final ActivityResultLauncher<Intent> pickRestoreFolderLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() != RESULT_OK || result.getData() == null) {
@@ -110,13 +118,16 @@ public class MainActivity extends BaseThemedActivity {
         setupFab();
         checkRestoreOnLaunch();
         updateLockState();
+        MokeLog.d("[Main] onCreate 完成");
     }
 
+    /** 启动时若本地无日记但检测到备份，提示用户恢复 */
     private void checkRestoreOnLaunch() {
         executor.execute(() -> {
             int count = diaryDao.getDiaryCount();
             boolean hasBackup = BackupManager.detectBackupHint(MainActivity.this);
             boolean manualPick = BackupManager.needsManualRestorePick(MainActivity.this);
+            MokeLog.d("[Main] 启动检查：日记=" + count + "，有备份=" + hasBackup + "，需手动恢复=" + manualPick);
             runOnUiThread(() -> {
                 if (count == 0 && hasBackup) {
                     showRestoreDialog(false, manualPick);
@@ -125,6 +136,7 @@ public class MainActivity extends BaseThemedActivity {
         });
     }
 
+    /** 设置工具栏溢出菜单为温馨圆点图标，并按主题着色 */
     private void setupToolbar() {
         android.graphics.drawable.Drawable overflowIcon =
                 AppCompatResources.getDrawable(this, R.drawable.ic_menu_overflow_warm);
@@ -179,10 +191,12 @@ public class MainActivity extends BaseThemedActivity {
                 startActivity(DiaryEditActivity.createIntent(this, -1)));
     }
 
+    /** 是否处于锁屏状态（已设密码且当前会话未解锁） */
     private boolean isLocked() {
         return PasswordManager.hasPassword(this) && !LockSession.isUnlocked();
     }
 
+    /** 根据锁屏状态切换主内容与锁屏层，解锁后刷新列表 */
     private void updateLockState() {
         boolean locked = isLocked();
         lockScreen.setVisibility(locked ? View.VISIBLE : View.GONE);
@@ -216,9 +230,11 @@ public class MainActivity extends BaseThemedActivity {
             return;
         }
         LockSession.unlock(password);
+        MokeLog.d("[Main] 解锁成功");
         updateLockState();
     }
 
+    /** 后台查询日记，支持关键词 + 心情组合筛选 */
     private void loadDiaries() {
         if (isLocked()) {
             return;
@@ -247,6 +263,7 @@ public class MainActivity extends BaseThemedActivity {
                 boolean empty = diaries.isEmpty();
                 binding.emptyView.setVisibility(empty ? View.VISIBLE : View.GONE);
                 binding.diaryRecyclerView.setVisibility(empty ? View.GONE : View.VISIBLE);
+                MokeLog.d("[Main] 加载列表：" + diaries.size() + " 篇");
             });
         });
     }
@@ -268,6 +285,7 @@ public class MainActivity extends BaseThemedActivity {
         return true;
     }
 
+    /** 强制在溢出菜单中显示各项图标（Android 默认可能隐藏） */
     private void setMenuIconsVisible(Menu menu) {
         if (menu instanceof androidx.appcompat.view.menu.MenuBuilder) {
             ((androidx.appcompat.view.menu.MenuBuilder) menu).setOptionalIconsVisible(true);
@@ -285,6 +303,7 @@ public class MainActivity extends BaseThemedActivity {
             return true;
         } else if (id == R.id.action_lock_now) {
             LockSession.lock();
+            MokeLog.d("[Main] 手动上锁");
             updateLockState();
             Toast.makeText(this, R.string.locked_success, Toast.LENGTH_SHORT).show();
             return true;
@@ -321,6 +340,7 @@ public class MainActivity extends BaseThemedActivity {
     }
 
     private void runBackup() {
+        MokeLog.d("[Main] 开始手动备份");
         executor.execute(() -> {
             if (diaryDao.getDiaryCount() == 0) {
                 runOnUiThread(() -> Toast.makeText(this, R.string.backup_empty, Toast.LENGTH_SHORT).show());
@@ -362,7 +382,9 @@ public class MainActivity extends BaseThemedActivity {
         pickRestoreFolderLauncher.launch(BackupManager.createOpenTreeIntent());
     }
 
+    /** 扫描并合并恢复全部备份；无自动权限时引导选手动选文件夹 */
     private void performRestore() {
+        MokeLog.d("[Main] 开始自动恢复");
         if (BackupManager.needsManualRestorePick(this)) {
             launchPickBackupForRestore();
             return;
@@ -374,6 +396,7 @@ public class MainActivity extends BaseThemedActivity {
     }
 
     private void performRestoreFromFolder(Uri treeUri) {
+        MokeLog.d("[Main] 从文件夹恢复：" + treeUri);
         executor.execute(() -> {
             BackupManager.RestoreResult result = BackupManager.importAllBackups(this, treeUri, null);
             runOnUiThread(() -> showRestoreResult(result));
@@ -381,6 +404,8 @@ public class MainActivity extends BaseThemedActivity {
     }
 
     private void showRestoreResult(BackupManager.RestoreResult result) {
+        MokeLog.i("[Main] 恢复结果：success=" + result.success
+                + "，files=" + result.backupFileCount + "，diaries=" + result.diaryCount);
         if (result.success) {
             String message = result.backupFileCount > 1
                     ? getString(R.string.restore_success_merge, result.backupFileCount, result.diaryCount)

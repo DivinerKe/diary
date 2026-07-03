@@ -13,6 +13,10 @@ import com.moke.diary.model.DiaryEntry;
 import com.moke.diary.model.DiaryRevision;
 import com.moke.diary.model.MediaAttachment;
 
+/**
+ * Room 数据库单例。
+ * 包含日记条目、媒体附件、修订历史三张表，当前版本 3。
+ */
 @Database(
         entities = {DiaryEntry.class, MediaAttachment.class, DiaryRevision.class},
         version = 3,
@@ -22,6 +26,7 @@ public abstract class DiaryDatabase extends RoomDatabase {
 
     private static volatile DiaryDatabase INSTANCE;
 
+    /** v1→v2：修订表增加 changeLog 字段 */
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase db) {
@@ -29,7 +34,7 @@ public abstract class DiaryDatabase extends RoomDatabase {
         }
     };
 
-    /** 修复 v2 中 changeLog 被误设为 NOT NULL 的表结构 */
+    /** v2→v3：修复 changeLog 被误设为 NOT NULL 的表结构（重建表） */
     private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase db) {
@@ -37,6 +42,7 @@ public abstract class DiaryDatabase extends RoomDatabase {
         }
     };
 
+    /** 通过临时表迁移数据，确保 changeLog 可为 NULL */
     private static void recreateRevisionsTable(@NonNull SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS diary_revisions_new ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
@@ -60,6 +66,7 @@ public abstract class DiaryDatabase extends RoomDatabase {
 
     public abstract DiaryDao diaryDao();
 
+    /** 双重检查锁获取全局唯一数据库实例 */
     public static DiaryDatabase getInstance(Context context) {
         if (INSTANCE == null) {
             synchronized (DiaryDatabase.class) {
