@@ -87,8 +87,7 @@
         <item name="boxCornerRadiusBottomEnd">22dp</item>
         <item name="boxStrokeWidth">0dp</item>
         <item name="boxStrokeWidthFocused">0dp</item>
-        <item name="hintEnabled">true</item>
-        <item name="hintAnimationEnabled">true</item>
+        <item name="hintEnabled">false</item>
         <item name="startIconDrawable">@drawable/ic_search_warm</item>
         <item name="android:paddingStart">4dp</item>
         <item name="android:paddingEnd">4dp</item>

@@ -2,6 +2,7 @@ package com.moke.diary.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import com.moke.diary.R;
 import com.moke.diary.model.DiaryWithMedia;
 import com.moke.diary.model.Mood;
 import com.moke.diary.util.DateUtil;
+import com.moke.diary.util.SearchHighlightUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,7 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.ViewHolder> 
 
     private final List<DiaryWithMedia> items = new ArrayList<>();
     private final OnDiaryClickListener listener;
+    private String searchKeyword = "";
 
     public DiaryAdapter(OnDiaryClickListener listener) {
         this.listener = listener;
@@ -40,6 +43,12 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.ViewHolder> 
 
     /** 替换列表数据并刷新全部条目。 */
     public void setItems(List<DiaryWithMedia> diaries) {
+        setItems(diaries, "");
+    }
+
+    /** 替换列表数据，并在有搜索词时对标题与正文预览中的匹配部分标红。 */
+    public void setItems(List<DiaryWithMedia> diaries, String searchKeyword) {
+        this.searchKeyword = searchKeyword != null ? searchKeyword.trim() : "";
         items.clear();
         if (diaries != null) {
             items.addAll(diaries);
@@ -64,12 +73,22 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.ViewHolder> 
         applyThemeToCard(context, holder.diaryCard);
 
         DiaryWithMedia diary = items.get(position);
-        holder.titleText.setText(diary.entry.title);
+        boolean highlight = !TextUtils.isEmpty(searchKeyword);
+        if (highlight) {
+            holder.titleText.setText(SearchHighlightUtil.highlight(
+                    context, diary.entry.title, searchKeyword));
+        } else {
+            holder.titleText.setText(diary.entry.title);
+        }
         holder.moodText.setText(Mood.fromName(diary.entry.mood).display());
 
         if (diary.entry.encrypted) {
             holder.contentPreview.setText(R.string.encrypted_content);
             holder.encryptedBadge.setVisibility(View.VISIBLE);
+        } else if (highlight) {
+            holder.contentPreview.setText(SearchHighlightUtil.highlight(
+                    context, diary.entry.content, searchKeyword));
+            holder.encryptedBadge.setVisibility(View.GONE);
         } else {
             holder.contentPreview.setText(diary.entry.content);
             holder.encryptedBadge.setVisibility(View.GONE);

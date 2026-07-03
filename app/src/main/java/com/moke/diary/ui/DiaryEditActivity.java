@@ -557,11 +557,6 @@ public class DiaryEditActivity extends BaseLockActivity {
         String content = binding.contentInput.getText() != null
                 ? binding.contentInput.getText().toString().trim() : "";
 
-        if (TextUtils.isEmpty(title)) {
-            Toast.makeText(this, R.string.title_required, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         boolean encrypt = binding.encryptSwitch.isChecked();
         if (encrypt && !PasswordManager.hasPassword(this)) {
             Toast.makeText(this, "请先在主页设置密码", Toast.LENGTH_SHORT).show();

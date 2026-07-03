@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">我的日记</string>
-    <string name="search_hint">🌸 搜索日记标题或内容…</string>
+    <string name="search_hint">搜索日记标题或内容…</string>
     <string name="new_diary">新建日记</string>
     <string name="edit_diary">编辑日记</string>
     <string name="diary_detail">日记详情</string>

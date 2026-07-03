@@ -180,6 +180,20 @@ public class MainActivity extends BaseThemedActivity {
     }
 
     private void setupSearch() {
+        binding.searchInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                loadDiaries();
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
+        });
         binding.searchInput.setOnEditorActionListener((v, actionId, event) -> {
             loadDiaries();
             return true;
@@ -259,7 +273,7 @@ public class MainActivity extends BaseThemedActivity {
                 if (isLocked()) {
                     return;
                 }
-                adapter.setItems(diaries);
+                adapter.setItems(diaries, keyword);
                 boolean empty = diaries.isEmpty();
                 binding.emptyView.setVisibility(empty ? View.VISIBLE : View.GONE);
                 binding.diaryRecyclerView.setVisibility(empty ? View.GONE : View.VISIBLE);
