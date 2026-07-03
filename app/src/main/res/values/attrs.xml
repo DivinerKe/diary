@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="diaryCardCornerRadius" format="dimension" />
+    <attr name="diaryCardElevation" format="dimension" />
+    <attr name="lockEmoji" format="string" />
+    <attr name="diarySearchStyle" format="reference" />
+    <attr name="diaryToolbarStyle" format="reference" />
+    <attr name="diaryFabStyle" format="reference" />
+</resources>

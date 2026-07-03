@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- 卡哇伊 -->
+    <color name="kawaii_primary">#FFFF8FB1</color>
+    <color name="kawaii_primary_dark">#FFFF6B9D</color>
+    <color name="kawaii_secondary">#FFFFB7D5</color>
+    <color name="kawaii_background">#FFFFF5F8</color>
+    <color name="kawaii_surface">#FFFFFFFF</color>
+    <color name="kawaii_on_primary">#FFFFFFFF</color>
+
+    <!-- 耍酷 -->
+    <color name="cool_primary">#FF1E1E2E</color>
+    <color name="cool_primary_dark">#FF0D0D14</color>
+    <color name="cool_secondary">#FF00B4D8</color>
+    <color name="cool_background">#FF121218</color>
+    <color name="cool_surface">#FF1A1A24</color>
+    <color name="cool_on_primary">#FFFFFFFF</color>
+    <color name="cool_text_primary">#FFF0F0F5</color>
+    <color name="cool_text_secondary">#FF9CA3AF</color>
+
+    <!-- 搜索框 -->
+    <color name="search_fill_classic">#FFF7F3FF</color>
+    <color name="search_hint_classic">#FF9B8FA8</color>
+    <color name="search_icon_classic">#FF9C7FD4</color>
+
+    <color name="search_fill_kawaii">#FFFFECF2</color>
+    <color name="search_hint_kawaii">#FFE8A4B8</color>
+    <color name="search_icon_kawaii">#FFFF8FB1</color>
+
+    <color name="search_fill_cool">#FF22222E</color>
+    <color name="search_hint_cool">#FF7A8494</color>
+    <color name="search_icon_cool">#FF5EC8E8</color>
+</resources>

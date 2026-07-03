@@ -1,0 +1,44 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.Diary" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/purple_200</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_200</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="diaryCardCornerRadius">12dp</item>
+        <item name="diaryCardElevation">2dp</item>
+        <item name="lockEmoji">🔒</item>
+    </style>
+
+    <style name="Theme.Diary.Kawaii" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/kawaii_primary</item>
+        <item name="colorPrimaryVariant">@color/kawaii_primary_dark</item>
+        <item name="colorOnPrimary">@color/kawaii_on_primary</item>
+        <item name="colorSecondary">@color/kawaii_secondary</item>
+        <item name="android:colorBackground">@color/kawaii_background</item>
+        <item name="colorSurface">@color/kawaii_surface</item>
+        <item name="android:statusBarColor">@color/kawaii_primary_dark</item>
+        <item name="diaryCardCornerRadius">24dp</item>
+        <item name="diaryCardElevation">4dp</item>
+        <item name="lockEmoji">💗</item>
+    </style>
+
+    <style name="Theme.Diary.Cool" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimary">@color/cool_primary</item>
+        <item name="colorPrimaryVariant">@color/cool_primary_dark</item>
+        <item name="colorOnPrimary">@color/cool_on_primary</item>
+        <item name="colorSecondary">@color/cool_secondary</item>
+        <item name="android:colorBackground">@color/cool_background</item>
+        <item name="colorSurface">@color/cool_surface</item>
+        <item name="android:textColorPrimary">@color/cool_text_primary</item>
+        <item name="android:textColorSecondary">@color/cool_text_secondary</item>
+        <item name="android:statusBarColor">@color/cool_primary_dark</item>
+        <item name="diaryCardCornerRadius">4dp</item>
+        <item name="diaryCardElevation">6dp</item>
+        <item name="lockEmoji">⚡</item>
+    </style>
+
+</resources>

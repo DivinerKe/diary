@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="security_questions">
+        <item>你的宠物叫什么名字？</item>
+        <item>你的出生地是哪里？</item>
+        <item>你母亲的姓名是什么？</item>
+        <item>你最喜欢的一本书是什么？</item>
+        <item>你的小学名称是什么？</item>
+    </string-array>
+</resources>

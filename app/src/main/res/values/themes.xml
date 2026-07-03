@@ -1,0 +1,209 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.Diary" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="diaryCardCornerRadius">12dp</item>
+        <item name="diaryCardElevation">2dp</item>
+        <item name="lockEmoji">🔒</item>
+        <item name="diarySearchStyle">@style/DiarySearchBox.Classic</item>
+        <item name="diaryToolbarStyle">@style/DiaryToolbar.Classic</item>
+        <item name="diaryFabStyle">@style/DiaryFab.Classic</item>
+        <item name="popupTheme">@style/DiaryPopupTheme.Classic</item>
+    </style>
+
+    <style name="Theme.Diary.Kawaii" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/kawaii_primary</item>
+        <item name="colorPrimaryVariant">@color/kawaii_primary_dark</item>
+        <item name="colorOnPrimary">@color/kawaii_on_primary</item>
+        <item name="colorSecondary">@color/kawaii_secondary</item>
+        <item name="colorSecondaryVariant">@color/kawaii_primary</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="android:colorBackground">@color/kawaii_background</item>
+        <item name="colorSurface">@color/kawaii_surface</item>
+        <item name="android:statusBarColor">@color/kawaii_primary_dark</item>
+        <item name="android:navigationBarColor">@color/kawaii_background</item>
+        <item name="diaryCardCornerRadius">24dp</item>
+        <item name="diaryCardElevation">4dp</item>
+        <item name="lockEmoji">💗</item>
+        <item name="materialButtonStyle">@style/KawaiiButton</item>
+        <item name="chipStyle">@style/KawaiiChip</item>
+        <item name="diarySearchStyle">@style/DiarySearchBox.Kawaii</item>
+        <item name="diaryToolbarStyle">@style/DiaryToolbar.Kawaii</item>
+        <item name="diaryFabStyle">@style/DiaryFab.Kawaii</item>
+        <item name="popupTheme">@style/DiaryPopupTheme.Kawaii</item>
+    </style>
+
+    <style name="Theme.Diary.Cool" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimary">@color/cool_primary</item>
+        <item name="colorPrimaryVariant">@color/cool_primary_dark</item>
+        <item name="colorOnPrimary">@color/cool_on_primary</item>
+        <item name="colorSecondary">@color/cool_secondary</item>
+        <item name="colorSecondaryVariant">@color/cool_secondary</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="android:colorBackground">@color/cool_background</item>
+        <item name="colorSurface">@color/cool_surface</item>
+        <item name="android:textColorPrimary">@color/cool_text_primary</item>
+        <item name="android:textColorSecondary">@color/cool_text_secondary</item>
+        <item name="android:statusBarColor">@color/cool_primary_dark</item>
+        <item name="android:navigationBarColor">@color/cool_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="diaryCardCornerRadius">4dp</item>
+        <item name="diaryCardElevation">6dp</item>
+        <item name="lockEmoji">⚡</item>
+        <item name="materialButtonStyle">@style/CoolButton</item>
+        <item name="diarySearchStyle">@style/DiarySearchBox.Cool</item>
+        <item name="diaryToolbarStyle">@style/DiaryToolbar.Cool</item>
+        <item name="diaryFabStyle">@style/DiaryFab.Cool</item>
+        <item name="popupTheme">@style/DiaryPopupTheme.Cool</item>
+    </style>
+
+    <style name="KawaiiButton" parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">20dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="KawaiiChip" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipCornerRadius">16dp</item>
+        <item name="chipBackgroundColor">@color/kawaii_chip_bg</item>
+    </style>
+
+    <style name="CoolButton" parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">2dp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.08</item>
+    </style>
+
+    <style name="DiarySearchBox" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="boxBackgroundMode">filled</item>
+        <item name="boxCornerRadiusTopStart">22dp</item>
+        <item name="boxCornerRadiusTopEnd">22dp</item>
+        <item name="boxCornerRadiusBottomStart">22dp</item>
+        <item name="boxCornerRadiusBottomEnd">22dp</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+        <item name="hintEnabled">true</item>
+        <item name="hintAnimationEnabled">true</item>
+        <item name="startIconDrawable">@drawable/ic_search_warm</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
+    </style>
+
+    <style name="DiarySearchBox.Classic" parent="DiarySearchBox">
+        <item name="boxBackgroundColor">@color/search_fill_classic</item>
+        <item name="android:textColorHint">@color/search_hint_classic</item>
+        <item name="hintTextColor">@color/search_hint_classic</item>
+        <item name="startIconTint">@color/search_icon_classic</item>
+        <item name="boxStrokeColor">@color/search_icon_classic</item>
+    </style>
+
+    <style name="DiarySearchBox.Kawaii" parent="DiarySearchBox">
+        <item name="boxBackgroundColor">@color/search_fill_kawaii</item>
+        <item name="android:textColorHint">@color/search_hint_kawaii</item>
+        <item name="hintTextColor">@color/search_hint_kawaii</item>
+        <item name="startIconTint">@color/search_icon_kawaii</item>
+        <item name="boxStrokeColor">@color/search_icon_kawaii</item>
+        <item name="boxCornerRadiusTopStart">24dp</item>
+        <item name="boxCornerRadiusTopEnd">24dp</item>
+        <item name="boxCornerRadiusBottomStart">24dp</item>
+        <item name="boxCornerRadiusBottomEnd">24dp</item>
+    </style>
+
+    <style name="DiarySearchBox.Cool" parent="DiarySearchBox">
+        <item name="boxBackgroundColor">@color/search_fill_cool</item>
+        <item name="android:textColorHint">@color/search_hint_cool</item>
+        <item name="hintTextColor">@color/search_hint_cool</item>
+        <item name="startIconTint">@color/search_icon_cool</item>
+        <item name="boxStrokeColor">@color/search_icon_cool</item>
+        <item name="boxCornerRadiusTopStart">8dp</item>
+        <item name="boxCornerRadiusTopEnd">8dp</item>
+        <item name="boxCornerRadiusBottomStart">8dp</item>
+        <item name="boxCornerRadiusBottomEnd">8dp</item>
+    </style>
+
+    <style name="DiarySearchEditText" parent="Widget.MaterialComponents.TextInputEditText.FilledBox">
+        <item name="android:textSize">15sp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="DiaryToolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="titleTextColor">?attr/colorOnPrimary</item>
+        <item name="subtitleTextColor">?attr/colorOnPrimary</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+    <style name="DiaryToolbar.Classic" parent="DiaryToolbar" />
+
+    <style name="DiaryToolbar.Kawaii" parent="DiaryToolbar">
+        <item name="android:elevation">0dp</item>
+        <item name="titleTextAppearance">@style/DiaryToolbarTitle.Kawaii</item>
+    </style>
+
+    <style name="DiaryToolbar.Cool" parent="DiaryToolbar">
+        <item name="android:elevation">8dp</item>
+    </style>
+
+    <style name="DiaryToolbarTitle.Kawaii" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textSize">20sp</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <style name="DiaryPopupTheme" parent="ThemeOverlay.MaterialComponents.Light">
+        <item name="android:textColorPrimary">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="DiaryPopupTheme.Classic" parent="DiaryPopupTheme">
+        <item name="android:popupBackground">@drawable/bg_popup_menu_classic</item>
+    </style>
+
+    <style name="DiaryPopupTheme.Kawaii" parent="DiaryPopupTheme">
+        <item name="android:popupBackground">@drawable/bg_popup_menu_kawaii</item>
+    </style>
+
+    <style name="DiaryPopupTheme.Cool" parent="ThemeOverlay.MaterialComponents.Dark">
+        <item name="android:popupBackground">@drawable/bg_popup_menu_cool</item>
+        <item name="android:textColorPrimary">@color/cool_text_primary</item>
+    </style>
+
+    <style name="DiaryFab" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="srcCompat">@drawable/ic_add_warm</item>
+        <item name="backgroundTint">?attr/colorPrimary</item>
+        <item name="tint">?attr/colorOnPrimary</item>
+        <item name="elevation">6dp</item>
+        <item name="hoveredFocusedTranslationZ">8dp</item>
+        <item name="pressedTranslationZ">10dp</item>
+        <item name="maxImageSize">28dp</item>
+    </style>
+
+    <style name="DiaryFab.Classic" parent="DiaryFab" />
+
+    <style name="DiaryFab.Kawaii" parent="DiaryFab">
+        <item name="shapeAppearance">@style/DiaryFabShape.Kawaii</item>
+        <item name="elevation">8dp</item>
+    </style>
+
+    <style name="DiaryFab.Cool" parent="DiaryFab">
+        <item name="shapeAppearance">@style/DiaryFabShape.Cool</item>
+        <item name="backgroundTint">?attr/colorSecondary</item>
+        <item name="tint">@color/black</item>
+    </style>
+
+    <style name="DiaryFabShape.Kawaii" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <style name="DiaryFabShape.Cool" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
+</resources>

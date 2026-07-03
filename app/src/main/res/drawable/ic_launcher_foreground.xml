@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 书页阴影 -->
+    <path
+        android:fillColor="#26000000"
+        android:pathData="M41,31h42a7,7 0,0 1,7 7v36a7,7 0,0 1,-7 7H41a7,7 0,0 1,-7 -7V38a7,7 0,0 1,7 -7z" />
+    <!-- 封面 -->
+    <path
+        android:fillColor="#FFFF6B9D"
+        android:pathData="M38,28h44a8,8 0,0 1,8 8v40a8,8 0,0 1,-8 8H38a8,8 0,0 1,-8 -8V36a8,8 0,0 1,8 -8z" />
+    <!-- 书脊 -->
+    <path
+        android:fillColor="#FFFF4F88"
+        android:pathData="M30,28h12v56H30a6,6 0,0 1,-6 -6V34a6,6 0,0 1,6 -6z" />
+    <!-- 内页 -->
+    <path
+        android:fillColor="#FFFFFDF9"
+        android:pathData="M42,34h36a5,5 0,0 1,5 5v32a5,5 0,0 1,-5 5H42a5,5 0,0 1,-5 -5V39a5,5 0,0 1,5 -5z" />
+    <!-- 文字行 -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M44,44h32M44,52h28M44,60h24"
+        android:strokeWidth="2.2"
+        android:strokeColor="#FFFFD1E0"
+        android:strokeLineCap="round" />
+    <!-- 小爱心 -->
+    <path
+        android:fillColor="#FFFF8FB1"
+        android:pathData="M60,66c-3.2,-2.4 -6.8,-2.2 -8.8,0.4c-2,-2.6 -5.6,-2.8 -8.8,-0.4c-2.6,2 -2.8,5.6 -0.4,8.2l9.2,9.2l9.2,-9.2c2.4,-2.6 2.2,-6.2 -0.4,-8.2z" />
+    <!-- 装饰星星 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M72,30l1.4,3.2 3.5,0.4 -2.6,2.3 0.8,3.4 -3.1,-1.8 -3.1,1.8 0.8,-3.4 -2.6,-2.3 3.5,-0.4z" />
+    <path
+        android:fillColor="#CCFFFFFF"
+        android:pathData="M34,62l1,2.2 2.4,0.3 -1.8,1.6 0.5,2.4 -2.2,-1.2 -2.2,1.2 0.5,-2.4 -1.8,-1.6 2.4,-0.3z" />
+</vector>
