@@ -10,7 +10,14 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="diaryCardCornerRadius">12dp</item>
         <item name="diaryCardElevation">2dp</item>
-        <item name="lockEmoji">🔒</item>
+        <item name="lockEmoji">🌙</item>
+        <item name="diaryLockBackground">@drawable/bg_lock_screen_classic</item>
+        <item name="diaryLockCardStyle">@style/DiaryLockCard.Classic</item>
+        <item name="diaryLockInputStyle">@style/DiaryLockInput.Classic</item>
+        <item name="diaryLockButtonStyle">@style/DiaryLockButton.Classic</item>
+        <item name="diaryLockEmojiCircle">@drawable/bg_lock_emoji_circle_classic</item>
+        <item name="diaryLockTitleColor">@color/lock_title_classic</item>
+        <item name="diaryLockSubtitleColor">@color/lock_subtitle_classic</item>
     </style>
 
     <style name="Theme.Diary.Kawaii" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -24,6 +31,13 @@
         <item name="diaryCardCornerRadius">24dp</item>
         <item name="diaryCardElevation">4dp</item>
         <item name="lockEmoji">💗</item>
+        <item name="diaryLockBackground">@drawable/bg_lock_screen_kawaii</item>
+        <item name="diaryLockCardStyle">@style/DiaryLockCard.Kawaii</item>
+        <item name="diaryLockInputStyle">@style/DiaryLockInput.Kawaii</item>
+        <item name="diaryLockButtonStyle">@style/DiaryLockButton.Kawaii</item>
+        <item name="diaryLockEmojiCircle">@drawable/bg_lock_emoji_circle_kawaii</item>
+        <item name="diaryLockTitleColor">@color/lock_title_kawaii</item>
+        <item name="diaryLockSubtitleColor">@color/lock_subtitle_kawaii</item>
     </style>
 
     <style name="Theme.Diary.Cool" parent="Theme.MaterialComponents.NoActionBar">
@@ -38,7 +52,14 @@
         <item name="android:statusBarColor">@color/cool_primary_dark</item>
         <item name="diaryCardCornerRadius">4dp</item>
         <item name="diaryCardElevation">6dp</item>
-        <item name="lockEmoji">⚡</item>
+        <item name="lockEmoji">🔐</item>
+        <item name="diaryLockBackground">@drawable/bg_lock_screen_cool</item>
+        <item name="diaryLockCardStyle">@style/DiaryLockCard.Cool</item>
+        <item name="diaryLockInputStyle">@style/DiaryLockInput.Cool</item>
+        <item name="diaryLockButtonStyle">@style/DiaryLockButton.Cool</item>
+        <item name="diaryLockEmojiCircle">@drawable/bg_lock_emoji_circle_cool</item>
+        <item name="diaryLockTitleColor">@color/lock_title_cool</item>
+        <item name="diaryLockSubtitleColor">@color/lock_subtitle_cool</item>
     </style>
 
 </resources>

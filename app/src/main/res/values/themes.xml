@@ -10,7 +10,14 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="diaryCardCornerRadius">12dp</item>
         <item name="diaryCardElevation">2dp</item>
-        <item name="lockEmoji">🔒</item>
+        <item name="lockEmoji">🌙</item>
+        <item name="diaryLockBackground">@drawable/bg_lock_screen_classic</item>
+        <item name="diaryLockCardStyle">@style/DiaryLockCard.Classic</item>
+        <item name="diaryLockInputStyle">@style/DiaryLockInput.Classic</item>
+        <item name="diaryLockButtonStyle">@style/DiaryLockButton.Classic</item>
+        <item name="diaryLockEmojiCircle">@drawable/bg_lock_emoji_circle_classic</item>
+        <item name="diaryLockTitleColor">@color/lock_title_classic</item>
+        <item name="diaryLockSubtitleColor">@color/lock_subtitle_classic</item>
         <item name="diarySearchStyle">@style/DiarySearchBox.Classic</item>
         <item name="diaryToolbarStyle">@style/DiaryToolbar.Classic</item>
         <item name="diaryFabStyle">@style/DiaryFab.Classic</item>
@@ -31,6 +38,13 @@
         <item name="diaryCardCornerRadius">24dp</item>
         <item name="diaryCardElevation">4dp</item>
         <item name="lockEmoji">💗</item>
+        <item name="diaryLockBackground">@drawable/bg_lock_screen_kawaii</item>
+        <item name="diaryLockCardStyle">@style/DiaryLockCard.Kawaii</item>
+        <item name="diaryLockInputStyle">@style/DiaryLockInput.Kawaii</item>
+        <item name="diaryLockButtonStyle">@style/DiaryLockButton.Kawaii</item>
+        <item name="diaryLockEmojiCircle">@drawable/bg_lock_emoji_circle_kawaii</item>
+        <item name="diaryLockTitleColor">@color/lock_title_kawaii</item>
+        <item name="diaryLockSubtitleColor">@color/lock_subtitle_kawaii</item>
         <item name="materialButtonStyle">@style/KawaiiButton</item>
         <item name="chipStyle">@style/KawaiiChip</item>
         <item name="diarySearchStyle">@style/DiarySearchBox.Kawaii</item>
@@ -55,7 +69,14 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="diaryCardCornerRadius">4dp</item>
         <item name="diaryCardElevation">6dp</item>
-        <item name="lockEmoji">⚡</item>
+        <item name="lockEmoji">🔐</item>
+        <item name="diaryLockBackground">@drawable/bg_lock_screen_cool</item>
+        <item name="diaryLockCardStyle">@style/DiaryLockCard.Cool</item>
+        <item name="diaryLockInputStyle">@style/DiaryLockInput.Cool</item>
+        <item name="diaryLockButtonStyle">@style/DiaryLockButton.Cool</item>
+        <item name="diaryLockEmojiCircle">@drawable/bg_lock_emoji_circle_cool</item>
+        <item name="diaryLockTitleColor">@color/lock_title_cool</item>
+        <item name="diaryLockSubtitleColor">@color/lock_subtitle_cool</item>
         <item name="materialButtonStyle">@style/CoolButton</item>
         <item name="diarySearchStyle">@style/DiarySearchBox.Cool</item>
         <item name="diaryToolbarStyle">@style/DiaryToolbar.Cool</item>
@@ -206,6 +227,96 @@
     <style name="DiaryFabShape.Cool" parent="ShapeAppearance.MaterialComponents.SmallComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="DiaryLockCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardPreventCornerOverlap">true</item>
+        <item name="contentPadding">0dp</item>
+    </style>
+
+    <style name="DiaryLockCard.Classic" parent="DiaryLockCard">
+        <item name="cardBackgroundColor">@color/lock_card_classic</item>
+        <item name="cardCornerRadius">28dp</item>
+        <item name="cardElevation">8dp</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">#1A9C7FD4</item>
+    </style>
+
+    <style name="DiaryLockCard.Kawaii" parent="DiaryLockCard">
+        <item name="cardBackgroundColor">@color/lock_card_kawaii</item>
+        <item name="cardCornerRadius">32dp</item>
+        <item name="cardElevation">10dp</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">#33FF8FB1</item>
+    </style>
+
+    <style name="DiaryLockCard.Cool" parent="DiaryLockCard">
+        <item name="cardBackgroundColor">@color/lock_card_cool</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">12dp</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">#3300B4D8</item>
+    </style>
+
+    <style name="DiaryLockInput" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="boxBackgroundMode">filled</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+        <item name="hintEnabled">false</item>
+        <item name="boxCornerRadiusTopStart">20dp</item>
+        <item name="boxCornerRadiusTopEnd">20dp</item>
+        <item name="boxCornerRadiusBottomStart">20dp</item>
+        <item name="boxCornerRadiusBottomEnd">20dp</item>
+        <item name="startIconDrawable">@drawable/ic_lock_warm</item>
+    </style>
+
+    <style name="DiaryLockInput.Classic" parent="DiaryLockInput">
+        <item name="boxBackgroundColor">@color/lock_input_fill_classic</item>
+        <item name="startIconTint">@color/search_icon_classic</item>
+        <item name="hintTextColor">@color/lock_subtitle_classic</item>
+        <item name="android:textColorHint">@color/lock_subtitle_classic</item>
+    </style>
+
+    <style name="DiaryLockInput.Kawaii" parent="DiaryLockInput">
+        <item name="boxBackgroundColor">@color/lock_input_fill_kawaii</item>
+        <item name="startIconTint">@color/search_icon_kawaii</item>
+        <item name="hintTextColor">@color/lock_subtitle_kawaii</item>
+        <item name="android:textColorHint">@color/lock_subtitle_kawaii</item>
+        <item name="boxCornerRadiusTopStart">22dp</item>
+        <item name="boxCornerRadiusTopEnd">22dp</item>
+        <item name="boxCornerRadiusBottomStart">22dp</item>
+        <item name="boxCornerRadiusBottomEnd">22dp</item>
+    </style>
+
+    <style name="DiaryLockInput.Cool" parent="DiaryLockInput">
+        <item name="boxBackgroundColor">@color/lock_input_fill_cool</item>
+        <item name="startIconTint">@color/search_icon_cool</item>
+        <item name="hintTextColor">@color/lock_subtitle_cool</item>
+        <item name="android:textColorHint">@color/lock_subtitle_cool</item>
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+    </style>
+
+    <style name="DiaryLockButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <style name="DiaryLockButton.Classic" parent="DiaryLockButton">
+        <item name="cornerRadius">22dp</item>
+    </style>
+
+    <style name="DiaryLockButton.Kawaii" parent="DiaryLockButton">
+        <item name="cornerRadius">24dp</item>
+    </style>
+
+    <style name="DiaryLockButton.Cool" parent="DiaryLockButton">
+        <item name="cornerRadius">8dp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.06</item>
     </style>
 
 </resources>

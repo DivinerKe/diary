@@ -40,4 +40,29 @@
     <color name="search_icon_cool">#FF5EC8E8</color>
 
     <color name="search_match_highlight">#FFE53935</color>
+
+    <!-- 上锁界面 -->
+    <color name="lock_bg_classic_start">#FFF7F3FF</color>
+    <color name="lock_bg_classic_end">#FFFFFBFE</color>
+    <color name="lock_card_classic">#FFFFFFFF</color>
+    <color name="lock_emoji_circle_classic">#FFF0EBFF</color>
+    <color name="lock_title_classic">#FF5C4A6E</color>
+    <color name="lock_subtitle_classic">#FF9B8FA8</color>
+    <color name="lock_input_fill_classic">#FFF7F3FF</color>
+
+    <color name="lock_bg_kawaii_start">#FFFFF5F8</color>
+    <color name="lock_bg_kawaii_end">#FFFFECF2</color>
+    <color name="lock_card_kawaii">#FFFFFFFF</color>
+    <color name="lock_emoji_circle_kawaii">#FFFFE8F0</color>
+    <color name="lock_title_kawaii">#FF6B4A5A</color>
+    <color name="lock_subtitle_kawaii">#FFE8A4B8</color>
+    <color name="lock_input_fill_kawaii">#FFFFECF2</color>
+
+    <color name="lock_bg_cool_start">#FF121218</color>
+    <color name="lock_bg_cool_end">#FF1A1A28</color>
+    <color name="lock_card_cool">#FF22222E</color>
+    <color name="lock_emoji_circle_cool">#FF2A2A38</color>
+    <color name="lock_title_cool">#FFF0F0F5</color>
+    <color name="lock_subtitle_cool">#FF9CA3AF</color>
+    <color name="lock_input_fill_cool">#FF2A2A38</color>
 </resources>

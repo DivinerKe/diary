@@ -36,8 +36,15 @@
     <string name="revision_created">创建日记</string>
     <string name="revision_edited">编辑日记</string>
     <string name="media_attachments">附件</string>
-    <string name="app_locked_title">日记已上锁</string>
-    <string name="app_locked_message">请输入密码查看您的日记</string>
+    <string name="app_locked_title">日记在静静等你</string>
+    <string name="app_locked_message">输入密码，打开你的私密小天地吧 🌸</string>
+    <string name="lock_password_hint">悄悄输入密码…</string>
+    <string name="lock_title_kawaii">日记乖乖等你回来呀</string>
+    <string name="lock_message_kawaii">输入密码，打开你的粉色小天地吧 🎀</string>
+    <string name="lock_password_hint_kawaii">悄悄输入密码呀…</string>
+    <string name="lock_title_cool">日记已上锁</string>
+    <string name="lock_message_cool">输入密码，继续查看你的记录</string>
+    <string name="lock_password_hint_cool">输入密码</string>
     <string name="unlock">解锁</string>
     <string name="forgot_password">忘记密码？</string>
     <string name="recover_password">找回密码</string>

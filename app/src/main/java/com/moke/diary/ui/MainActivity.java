@@ -34,6 +34,7 @@ import com.moke.diary.model.DiaryWithMedia;
 import com.moke.diary.model.Mood;
 import com.moke.diary.util.BackupManager;
 import com.moke.diary.util.LockSession;
+import com.moke.diary.util.LockScreenUtil;
 import com.moke.diary.util.MokeLog;
 import com.moke.diary.util.PasswordManager;
 import com.moke.diary.util.ThemeManager;
@@ -56,6 +57,8 @@ public class MainActivity extends BaseThemedActivity {
     private View lockScreen;
     private TextInputEditText lockPasswordInput;
     private TextView lockEmojiText;
+    private TextView lockTitleText;
+    private TextView lockMessageText;
     /** 选择备份目录后是否立即执行一次备份 */
     private boolean pendingBackupAfterFolder;
 
@@ -106,6 +109,8 @@ public class MainActivity extends BaseThemedActivity {
         lockScreen = binding.lockScreen.getRoot();
         lockPasswordInput = lockScreen.findViewById(R.id.lockPasswordInput);
         lockEmojiText = lockScreen.findViewById(R.id.lockEmojiText);
+        lockTitleText = lockScreen.findViewById(R.id.lockTitleText);
+        lockMessageText = lockScreen.findViewById(R.id.lockMessageText);
         MaterialButton btnUnlock = lockScreen.findViewById(R.id.btnUnlock);
         MaterialButton btnForgot = lockScreen.findViewById(R.id.btnForgotPassword);
 
@@ -216,12 +221,7 @@ public class MainActivity extends BaseThemedActivity {
         lockScreen.setVisibility(locked ? View.VISIBLE : View.GONE);
         binding.contentLayout.setVisibility(locked ? View.GONE : View.VISIBLE);
 
-        if (lockEmojiText != null) {
-            android.util.TypedValue typedValue = new android.util.TypedValue();
-            if (getTheme().resolveAttribute(R.attr.lockEmoji, typedValue, true)) {
-                lockEmojiText.setText(typedValue.string);
-            }
-        }
+        applyLockScreenStyle();
 
         if (locked) {
             adapter.setItems(null);
@@ -230,6 +230,23 @@ public class MainActivity extends BaseThemedActivity {
             loadDiaries();
         }
         invalidateOptionsMenu();
+    }
+
+    /** 按当前主题与时段刷新上锁界面的图标与文案 */
+    private void applyLockScreenStyle() {
+        ThemeManager.AppTheme theme = ThemeManager.getTheme(this);
+        if (lockEmojiText != null) {
+            lockEmojiText.setText(LockScreenUtil.getTimeBasedLockEmoji(this));
+        }
+        if (lockTitleText != null) {
+            lockTitleText.setText(LockScreenUtil.getLockTitleRes(theme));
+        }
+        if (lockMessageText != null) {
+            lockMessageText.setText(LockScreenUtil.getLockMessageRes(theme));
+        }
+        if (lockPasswordInput != null) {
+            lockPasswordInput.setHint(LockScreenUtil.getLockPasswordHintRes(theme));
+        }
     }
 
     private void attemptUnlock() {

@@ -3,6 +3,13 @@
     <attr name="diaryCardCornerRadius" format="dimension" />
     <attr name="diaryCardElevation" format="dimension" />
     <attr name="lockEmoji" format="string" />
+    <attr name="diaryLockBackground" format="reference" />
+    <attr name="diaryLockCardStyle" format="reference" />
+    <attr name="diaryLockInputStyle" format="reference" />
+    <attr name="diaryLockButtonStyle" format="reference" />
+    <attr name="diaryLockEmojiCircle" format="reference" />
+    <attr name="diaryLockTitleColor" format="color" />
+    <attr name="diaryLockSubtitleColor" format="color" />
     <attr name="diarySearchStyle" format="reference" />
     <attr name="diaryToolbarStyle" format="reference" />
     <attr name="diaryFabStyle" format="reference" />
