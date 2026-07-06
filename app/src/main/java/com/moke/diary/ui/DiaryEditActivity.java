@@ -5,11 +5,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -31,9 +33,10 @@ import com.moke.diary.model.DiaryWithMedia;
 import com.moke.diary.model.MediaAttachment;
 import com.moke.diary.model.MediaType;
 import com.moke.diary.model.Mood;
+import com.moke.diary.util.BackupManager;
+import com.moke.diary.util.ColorUtil;
 import com.moke.diary.util.CryptoUtil;
 import com.moke.diary.util.LockSession;
-import com.moke.diary.util.BackupManager;
 import com.moke.diary.util.MediaCaptureHelper;
 import com.moke.diary.util.MediaStorage;
 import com.moke.diary.util.MokeLog;
@@ -449,6 +452,52 @@ public class DiaryEditActivity extends BaseLockActivity {
 
     private void applyBackgroundColor(int color) {
         binding.editContainer.setBackgroundColor(color);
+        applyContentColors(color);
+    }
+
+    /** 根据日记背景色亮度切换前景文字/控件颜色，避免深色主题下白字配浅色背景 */
+    private void applyContentColors(int backgroundColor) {
+        int primary = ColorUtil.primaryTextColor(backgroundColor);
+        int hint = ColorUtil.hintTextColor(backgroundColor);
+        ColorStateList hintList = ColorStateList.valueOf(hint);
+
+        binding.moodLabel.setTextColor(primary);
+        binding.backgroundColorLabel.setTextColor(primary);
+        binding.encryptSwitch.setTextColor(primary);
+
+        binding.titleInput.setTextColor(primary);
+        binding.titleInput.setHintTextColor(hintList);
+        binding.contentInput.setTextColor(primary);
+        binding.contentInput.setHintTextColor(hintList);
+
+        applyMoodChipColors(backgroundColor);
+
+        styleOutlinedButton(binding.btnAddPhoto, primary);
+        styleOutlinedButton(binding.btnAddAudio, primary);
+        styleOutlinedButton(binding.btnAddVideo, primary);
+    }
+
+    private void applyMoodChipColors(int backgroundColor) {
+        int checkedBg = resolveThemeColor(androidx.appcompat.R.attr.colorPrimary);
+        int checkedText = ColorUtil.primaryTextColor(checkedBg);
+        float strokeWidth = getResources().getDisplayMetrics().density;
+        for (int i = 0; i < binding.moodGroup.getChildCount(); i++) {
+            Chip chip = (Chip) binding.moodGroup.getChildAt(i);
+            ColorUtil.applyMoodChipStyle(chip, backgroundColor, checkedBg, checkedText, strokeWidth);
+        }
+    }
+
+    private int resolveThemeColor(int attr) {
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(attr, typedValue, true);
+        return typedValue.data;
+    }
+
+    private static void styleOutlinedButton(com.google.android.material.button.MaterialButton button,
+                                            int color) {
+        button.setTextColor(color);
+        button.setStrokeColor(ColorStateList.valueOf(color));
+        button.setIconTint(ColorStateList.valueOf(color));
     }
 
     private void setupButtons() {

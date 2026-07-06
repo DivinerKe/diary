@@ -1,7 +1,6 @@
 package com.moke.diary.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -16,6 +15,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.moke.diary.R;
 import com.moke.diary.model.DiaryWithMedia;
 import com.moke.diary.model.Mood;
+import com.moke.diary.util.ColorUtil;
 import com.moke.diary.util.DateUtil;
 import com.moke.diary.util.SearchHighlightUtil;
 
@@ -98,12 +98,14 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.ViewHolder> 
                 R.string.updated_at, DateUtil.formatFull(diary.entry.updatedAt)));
         holder.cardContainer.setBackgroundColor(diary.entry.backgroundColor);
 
-        int textColor = isLightColor(diary.entry.backgroundColor) ? Color.BLACK : Color.WHITE;
+        int bg = diary.entry.backgroundColor;
+        int textColor = ColorUtil.primaryTextColor(bg);
+        int secondaryColor = ColorUtil.secondaryTextColor(bg);
         holder.titleText.setTextColor(textColor);
-        holder.contentPreview.setTextColor(isLightColor(diary.entry.backgroundColor)
-                ? Color.DKGRAY : Color.LTGRAY);
-        holder.timeText.setTextColor(isLightColor(diary.entry.backgroundColor)
-                ? Color.GRAY : Color.LTGRAY);
+        holder.moodText.setTextColor(secondaryColor);
+        holder.contentPreview.setTextColor(secondaryColor);
+        holder.timeText.setTextColor(secondaryColor);
+        holder.mediaCount.setTextColor(secondaryColor);
 
         if (diary.mediaList != null && !diary.mediaList.isEmpty()) {
             holder.mediaCount.setVisibility(View.VISIBLE);
@@ -131,13 +133,6 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.ViewHolder> 
     @Override
     public int getItemCount() {
         return items.size();
-    }
-
-    /** 根据背景色亮度判断是否为浅色，用于选择黑/白文字。 */
-    private static boolean isLightColor(int color) {
-        double luminance = (0.299 * Color.red(color) + 0.587 * Color.green(color)
-                + 0.114 * Color.blue(color)) / 255;
-        return luminance > 0.5;
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

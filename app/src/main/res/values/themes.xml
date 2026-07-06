@@ -22,6 +22,7 @@
         <item name="diaryToolbarStyle">@style/DiaryToolbar.Classic</item>
         <item name="diaryFabStyle">@style/DiaryFab.Classic</item>
         <item name="popupTheme">@style/DiaryPopupTheme.Classic</item>
+        <item name="diaryMenuIconTint">@color/search_icon_classic</item>
     </style>
 
     <style name="Theme.Diary.Kawaii" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -51,6 +52,7 @@
         <item name="diaryToolbarStyle">@style/DiaryToolbar.Kawaii</item>
         <item name="diaryFabStyle">@style/DiaryFab.Kawaii</item>
         <item name="popupTheme">@style/DiaryPopupTheme.Kawaii</item>
+        <item name="diaryMenuIconTint">@color/search_icon_kawaii</item>
     </style>
 
     <style name="Theme.Diary.Cool" parent="Theme.MaterialComponents.NoActionBar">
@@ -82,6 +84,7 @@
         <item name="diaryToolbarStyle">@style/DiaryToolbar.Cool</item>
         <item name="diaryFabStyle">@style/DiaryFab.Cool</item>
         <item name="popupTheme">@style/DiaryPopupTheme.Cool</item>
+        <item name="diaryMenuIconTint">@color/cool_secondary</item>
     </style>
 
     <style name="KawaiiButton" parent="Widget.MaterialComponents.Button">

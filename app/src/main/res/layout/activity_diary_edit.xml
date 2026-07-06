@@ -43,10 +43,12 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
+                android:id="@+id/moodLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/mood_label"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textStyle="bold" />
 
             <HorizontalScrollView
@@ -64,10 +66,12 @@
             </HorizontalScrollView>
 
             <TextView
+                android:id="@+id/backgroundColorLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/background_color"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textStyle="bold" />
 
             <HorizontalScrollView
@@ -147,7 +151,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/encrypt" />
+                android:text="@string/encrypt"
+                android:textColor="?android:attr/textColorPrimary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSave"

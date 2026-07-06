@@ -13,4 +13,5 @@
     <attr name="diarySearchStyle" format="reference" />
     <attr name="diaryToolbarStyle" format="reference" />
     <attr name="diaryFabStyle" format="reference" />
+    <attr name="diaryMenuIconTint" format="color" />
 </resources>

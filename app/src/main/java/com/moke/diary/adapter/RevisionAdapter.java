@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.moke.diary.R;
 import com.moke.diary.model.DiaryRevision;
 import com.moke.diary.model.Mood;
+import com.moke.diary.util.ColorUtil;
 import com.moke.diary.util.DateUtil;
 
 import java.util.ArrayList;
@@ -24,9 +25,16 @@ import java.util.List;
 public class RevisionAdapter extends RecyclerView.Adapter<RevisionAdapter.ViewHolder> {
 
     private final List<DiaryRevision> items = new ArrayList<>();
+    private int pageBackgroundColor = 0xFFFFFFFF;
 
     /** 替换修订记录列表并刷新。 */
     public void setItems(List<DiaryRevision> revisions) {
+        setItems(revisions, pageBackgroundColor);
+    }
+
+    /** 替换修订记录列表，并按页面背景色调整文字颜色。 */
+    public void setItems(List<DiaryRevision> revisions, int pageBackgroundColor) {
+        this.pageBackgroundColor = pageBackgroundColor;
         items.clear();
         if (revisions != null) {
             items.addAll(revisions);
@@ -69,6 +77,13 @@ public class RevisionAdapter extends RecyclerView.Adapter<RevisionAdapter.ViewHo
         }
 
         holder.revisionTime.setText(DateUtil.formatFull(revision.revisedAt));
+
+        int primary = ColorUtil.primaryTextColor(pageBackgroundColor);
+        int secondary = ColorUtil.secondaryTextColor(pageBackgroundColor);
+        holder.revisionAction.setTextColor(primary);
+        holder.revisionTime.setTextColor(secondary);
+        holder.revisionPreview.setTextColor(secondary);
+        holder.revisionDetails.setTextColor(secondary);
     }
 
     @Override

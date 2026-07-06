@@ -18,6 +18,7 @@
         <item name="diaryLockEmojiCircle">@drawable/bg_lock_emoji_circle_classic</item>
         <item name="diaryLockTitleColor">@color/lock_title_classic</item>
         <item name="diaryLockSubtitleColor">@color/lock_subtitle_classic</item>
+        <item name="diaryMenuIconTint">@color/search_icon_classic</item>
     </style>
 
     <style name="Theme.Diary.Kawaii" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -38,6 +39,7 @@
         <item name="diaryLockEmojiCircle">@drawable/bg_lock_emoji_circle_kawaii</item>
         <item name="diaryLockTitleColor">@color/lock_title_kawaii</item>
         <item name="diaryLockSubtitleColor">@color/lock_subtitle_kawaii</item>
+        <item name="diaryMenuIconTint">@color/search_icon_kawaii</item>
     </style>
 
     <style name="Theme.Diary.Cool" parent="Theme.MaterialComponents.NoActionBar">
@@ -60,6 +62,7 @@
         <item name="diaryLockEmojiCircle">@drawable/bg_lock_emoji_circle_cool</item>
         <item name="diaryLockTitleColor">@color/lock_title_cool</item>
         <item name="diaryLockSubtitleColor">@color/lock_subtitle_cool</item>
+        <item name="diaryMenuIconTint">@color/cool_secondary</item>
     </style>
 
 </resources>

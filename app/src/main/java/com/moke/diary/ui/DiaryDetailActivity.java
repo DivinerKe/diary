@@ -20,6 +20,7 @@ import com.moke.diary.model.DiaryEntry;
 import com.moke.diary.model.DiaryRevision;
 import com.moke.diary.model.DiaryWithMedia;
 import com.moke.diary.model.Mood;
+import com.moke.diary.util.ColorUtil;
 import com.moke.diary.util.CryptoUtil;
 import com.moke.diary.util.DateUtil;
 import com.moke.diary.util.LockSession;
@@ -119,16 +120,29 @@ public class DiaryDetailActivity extends BaseLockActivity {
         binding.timeText.setText(getString(R.string.created_at, DateUtil.formatFull(currentEntry.createdAt))
                 + "\n" + getString(R.string.updated_at, DateUtil.formatFull(currentEntry.updatedAt)));
         binding.contentText.setText(decryptedContent);
+        applyContentColors(currentEntry.backgroundColor);
 
         MediaAdapter mediaAdapter = new MediaAdapter(false);
         binding.mediaRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.mediaRecyclerView.setAdapter(mediaAdapter);
-        mediaAdapter.setItems(diary.mediaList);
+        mediaAdapter.setItems(diary.mediaList, currentEntry.backgroundColor);
 
         RevisionAdapter revisionAdapter = new RevisionAdapter();
         binding.timelineRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.timelineRecyclerView.setAdapter(revisionAdapter);
-        revisionAdapter.setItems(revisions);
+        revisionAdapter.setItems(revisions, currentEntry.backgroundColor);
+    }
+
+    /** 根据日记背景色亮度设置详情页文字颜色，避免深色主题白字配浅色背景 */
+    private void applyContentColors(int backgroundColor) {
+        int primary = ColorUtil.primaryTextColor(backgroundColor);
+        int secondary = ColorUtil.secondaryTextColor(backgroundColor);
+        binding.titleText.setTextColor(primary);
+        binding.moodText.setTextColor(secondary);
+        binding.timeText.setTextColor(secondary);
+        binding.contentText.setTextColor(primary);
+        binding.mediaSectionLabel.setTextColor(primary);
+        binding.timelineSectionLabel.setTextColor(primary);
     }
 
     @Override

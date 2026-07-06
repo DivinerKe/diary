@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.moke.diary.R;
 import com.moke.diary.model.MediaAttachment;
 import com.moke.diary.model.MediaType;
+import com.moke.diary.util.ColorUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
     private final List<MediaAttachment> items = new ArrayList<>();
     private final boolean editable;
     private OnMediaRemoveListener removeListener;
+    private int pageBackgroundColor = 0xFFFFFFFF;
 
     public MediaAdapter(boolean editable) {
         this.editable = editable;
@@ -48,6 +50,12 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
 
     /** 替换附件列表并刷新。 */
     public void setItems(List<MediaAttachment> attachments) {
+        setItems(attachments, pageBackgroundColor);
+    }
+
+    /** 替换附件列表，并按页面背景色调整文字颜色。 */
+    public void setItems(List<MediaAttachment> attachments, int pageBackgroundColor) {
+        this.pageBackgroundColor = pageBackgroundColor;
         items.clear();
         if (attachments != null) {
             items.addAll(attachments);
@@ -101,6 +109,11 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
         });
 
         holder.itemView.setOnClickListener(v -> openMedia(holder, attachment, type));
+
+        int primary = ColorUtil.primaryTextColor(pageBackgroundColor);
+        int secondary = ColorUtil.secondaryTextColor(pageBackgroundColor);
+        holder.mediaName.setTextColor(primary);
+        holder.mediaType.setTextColor(secondary);
     }
 
     /** 通过 FileProvider 生成 URI 并调起系统应用预览图片、音频或视频。 */
