@@ -33,6 +33,6 @@ public final class EncryptionHelper {
     }
 
     public static int countEncryptedEntries(Context context) {
-        return DiaryDatabase.getInstance(context).diaryDao().getEncryptedEntries().size();
+        return DiaryDatabase.getInstance(context).diaryDao().countEncryptedEntries();
     }
 }

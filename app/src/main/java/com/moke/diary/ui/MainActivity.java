@@ -629,6 +629,18 @@ public class MainActivity extends BaseThemedActivity {
             return;
         }
 
+        executor.execute(() -> {
+            int encryptedCount = EncryptionHelper.countEncryptedEntries(this);
+            runOnUiThread(() -> {
+                if (isFinishing()) {
+                    return;
+                }
+                presentRecoverPasswordDialog(encryptedCount > 0);
+            });
+        });
+    }
+
+    private void presentRecoverPasswordDialog(boolean warnEncrypted) {
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_recover_password, null);
         TextView questionText = view.findViewById(R.id.securityQuestionText);
         TextInputEditText answerInput = view.findViewById(R.id.answerInput);
@@ -642,7 +654,7 @@ public class MainActivity extends BaseThemedActivity {
                 .setView(view)
                 .setPositiveButton(R.string.confirm, null)
                 .setNegativeButton(R.string.cancel, null);
-        if (EncryptionHelper.countEncryptedEntries(this) > 0) {
+        if (warnEncrypted) {
             builder.setMessage(R.string.reset_password_encrypted_warning);
         }
         AlertDialog dialog = builder.create();

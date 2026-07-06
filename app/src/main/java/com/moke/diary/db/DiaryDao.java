@@ -86,6 +86,9 @@ public interface DiaryDao {
     @Query("SELECT * FROM diary_entries WHERE encrypted = 1")
     List<DiaryEntry> getEncryptedEntries();
 
+    @Query("SELECT COUNT(*) FROM diary_entries WHERE encrypted = 1")
+    int countEncryptedEntries();
+
     /** 全量恢复前清空修订记录 */
     @Query("DELETE FROM diary_revisions")
     void deleteAllRevisions();

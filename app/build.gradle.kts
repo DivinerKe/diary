@@ -1,5 +1,16 @@
+import java.io.FileInputStream
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
+}
+
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -18,10 +29,24 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {
@@ -30,6 +55,22 @@ android {
     }
     buildFeatures {
         viewBinding = true
+    }
+
+    lint {
+        // Windows 上 lint-cache 易被 IDE Gradle 守护进程占用导致 clean/build 失败
+        checkReleaseBuilds = false
+    }
+
+    applicationVariants.configureEach {
+        if (buildType.name == "release") {
+            outputs.configureEach {
+                val date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)
+                @Suppress("DEPRECATION")
+                (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
+                    "Diary_$date.apk"
+            }
+        }
     }
 }
 
