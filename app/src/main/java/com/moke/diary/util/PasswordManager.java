@@ -9,6 +9,8 @@ import android.content.SharedPreferences;
  */
 public final class PasswordManager {
 
+    public static final int PASSWORD_MIN_LENGTH = 8;
+
     private static final String PREFS = "diary_security";
     private static final String KEY_HASH = "password_hash";
     private static final String KEY_QUESTION = "security_question";
@@ -26,9 +28,16 @@ public final class PasswordManager {
         return prefs.contains(KEY_QUESTION) && prefs.contains(KEY_ANSWER_HASH);
     }
 
+    public static boolean isValidLength(String password) {
+        return password != null && password.length() >= PASSWORD_MIN_LENGTH;
+    }
+
     /** 首次设置密码，同时绑定密保问题与答案 */
     public static void setPasswordWithRecovery(Context context, String password,
                                                String question, String answer) {
+        if (!isValidLength(password)) {
+            throw new IllegalArgumentException("Password too short");
+        }
         getPrefs(context).edit()
                 .putString(KEY_HASH, CryptoUtil.hashPassword(password))
                 .putString(KEY_QUESTION, question)
@@ -40,6 +49,9 @@ public final class PasswordManager {
         if (!verifyPassword(context, oldPassword)) {
             return false;
         }
+        if (!isValidLength(newPassword)) {
+            return false;
+        }
         getPrefs(context).edit()
                 .putString(KEY_HASH, CryptoUtil.hashPassword(newPassword))
                 .apply();
@@ -48,6 +60,9 @@ public final class PasswordManager {
 
     /** 通过密保验证后重置密码 */
     public static boolean resetPassword(Context context, String newPassword) {
+        if (!isValidLength(newPassword)) {
+            return false;
+        }
         getPrefs(context).edit()
                 .putString(KEY_HASH, CryptoUtil.hashPassword(newPassword))
                 .apply();

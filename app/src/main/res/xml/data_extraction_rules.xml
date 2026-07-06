@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup>
-        <include domain="database" path="diary.db" />
-        <include domain="file" path="media/" />
-        <include domain="sharedpref" path="diary_security.xml" />
+        <exclude domain="database" path="diary.db" />
+        <exclude domain="file" path="media/" />
+        <exclude domain="sharedpref" path="diary_security.xml" />
         <include domain="sharedpref" path="diary_theme.xml" />
     </cloud-backup>
     <device-transfer>
-        <include domain="database" path="diary.db" />
-        <include domain="file" path="media/" />
-        <include domain="sharedpref" path="diary_security.xml" />
+        <exclude domain="database" path="diary.db" />
+        <exclude domain="file" path="media/" />
+        <exclude domain="sharedpref" path="diary_security.xml" />
         <include domain="sharedpref" path="diary_theme.xml" />
     </device-transfer>
 </data-extraction-rules>

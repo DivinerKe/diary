@@ -106,6 +106,27 @@ public final class MediaStorage {
         return attachment;
     }
 
+    /** 删除单个媒体文件（忽略不存在的情况） */
+    public static void deleteFile(MediaAttachment attachment) {
+        if (attachment == null || attachment.filePath == null) {
+            return;
+        }
+        File file = new File(attachment.filePath);
+        if (file.exists() && !file.delete()) {
+            MokeLog.w("[Media] 删除文件失败：" + attachment.filePath);
+        }
+    }
+
+    /** 批量删除媒体文件 */
+    public static void deleteFiles(Iterable<MediaAttachment> attachments) {
+        if (attachments == null) {
+            return;
+        }
+        for (MediaAttachment attachment : attachments) {
+            deleteFile(attachment);
+        }
+    }
+
     /** 根据 ContentResolver 的 MIME 类型或媒体类型推断文件扩展名。 */
     private static String guessExtension(Context context, Uri uri, MediaType type) {
         String mime = context.getContentResolver().getType(uri);

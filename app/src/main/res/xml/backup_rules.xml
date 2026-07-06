@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <include domain="database" path="diary.db" />
-    <include domain="file" path="media/" />
-    <include domain="sharedpref" path="diary_security.xml" />
+    <!-- 日记数据与密码配置由应用内 zip 备份管理，不纳入系统 Auto Backup -->
+    <exclude domain="database" path="diary.db" />
+    <exclude domain="file" path="media/" />
+    <exclude domain="sharedpref" path="diary_security.xml" />
     <include domain="sharedpref" path="diary_theme.xml" />
 </full-backup-content>

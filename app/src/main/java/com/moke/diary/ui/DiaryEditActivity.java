@@ -36,6 +36,7 @@ import com.moke.diary.model.Mood;
 import com.moke.diary.util.BackupManager;
 import com.moke.diary.util.ColorUtil;
 import com.moke.diary.util.CryptoUtil;
+import com.moke.diary.util.DraftStore;
 import com.moke.diary.util.LockSession;
 import com.moke.diary.util.MediaCaptureHelper;
 import com.moke.diary.util.MediaStorage;
@@ -45,8 +46,10 @@ import com.moke.diary.util.RevisionDiffHelper;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -129,6 +132,61 @@ public class DiaryEditActivity extends BaseLockActivity {
         } else {
             binding.toolbar.setTitle(R.string.new_diary);
             applyBackgroundColor(selectedColor);
+            offerDraftRestore();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        saveDraftIfNeeded();
+        super.onPause();
+    }
+
+    /** 退后台时保存草稿，防止自动上锁导致编辑内容丢失 */
+    private void saveDraftIfNeeded() {
+        String title = binding.titleInput.getText() != null
+                ? binding.titleInput.getText().toString() : "";
+        String content = binding.contentInput.getText() != null
+                ? binding.contentInput.getText().toString() : "";
+        if (TextUtils.isEmpty(title) && TextUtils.isEmpty(content) && pendingMedia.isEmpty()) {
+            return;
+        }
+        DraftStore.save(this, diaryId, title, content, selectedMood.name(),
+                selectedColor, binding.encryptSwitch.isChecked());
+    }
+
+    private void offerDraftRestore() {
+        DraftStore.Draft draft = DraftStore.load(this, diaryId);
+        if (draft == null) {
+            return;
+        }
+        if (TextUtils.isEmpty(draft.title) && TextUtils.isEmpty(draft.content)) {
+            DraftStore.clear(this, diaryId);
+            return;
+        }
+        if (diaryId > 0 && existingEntry != null && draft.savedAt <= existingEntry.updatedAt) {
+            DraftStore.clear(this, diaryId);
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.draft_restore_title)
+                .setMessage(R.string.draft_restore_message)
+                .setPositiveButton(R.string.confirm, (d, w) -> applyDraft(draft))
+                .setNegativeButton(R.string.cancel, (d, w) -> DraftStore.clear(this, diaryId))
+                .show();
+    }
+
+    private void applyDraft(DraftStore.Draft draft) {
+        binding.titleInput.setText(draft.title);
+        binding.contentInput.setText(draft.content);
+        binding.encryptSwitch.setChecked(draft.encrypt);
+        selectedColor = draft.backgroundColor;
+        selectedMood = Mood.fromName(draft.mood);
+        applyBackgroundColor(selectedColor);
+        refreshColorPickerSelection();
+        for (int i = 0; i < binding.moodGroup.getChildCount(); i++) {
+            Chip chip = (Chip) binding.moodGroup.getChildAt(i);
+            chip.setChecked(chip.getTag() == selectedMood);
         }
     }
 
@@ -581,6 +639,7 @@ public class DiaryEditActivity extends BaseLockActivity {
         mediaAdapter.setItems(pendingMedia);
         takeSnapshot(existingEntry.title, content, existingEntry.mood,
                 existingEntry.backgroundColor, pendingMedia);
+        offerDraftRestore();
     }
 
     /** 记录编辑前状态，供 RevisionDiffHelper 对比生成 changeLog */
@@ -672,6 +731,21 @@ public class DiaryEditActivity extends BaseLockActivity {
             DiaryRevision revision = createRevision(entry, now, changeLog);
             diaryDao.insertRevision(revision);
 
+            List<MediaAttachment> oldMedia = isNew
+                    ? new ArrayList<>()
+                    : diaryDao.getMediaByDiaryId(diaryId);
+            Set<String> newPaths = new HashSet<>();
+            for (MediaAttachment attachment : pendingMedia) {
+                if (attachment.filePath != null) {
+                    newPaths.add(attachment.filePath);
+                }
+            }
+            for (MediaAttachment old : oldMedia) {
+                if (old.filePath != null && !newPaths.contains(old.filePath)) {
+                    MediaStorage.deleteFile(old);
+                }
+            }
+
             diaryDao.deleteMediaByDiaryId(diaryId);
             for (MediaAttachment attachment : pendingMedia) {
                 attachment.diaryId = diaryId;
@@ -682,6 +756,7 @@ public class DiaryEditActivity extends BaseLockActivity {
                     + "，加密=" + encrypt + "，媒体=" + pendingMedia.size());
 
             runOnUiThread(() -> {
+                DraftStore.clear(this, diaryId);
                 Toast.makeText(this, R.string.save_success, Toast.LENGTH_SHORT).show();
                 BackupManager.exportBackupAsync(this);
                 finish();

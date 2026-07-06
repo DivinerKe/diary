@@ -19,11 +19,14 @@ import com.moke.diary.db.DiaryDatabase;
 import com.moke.diary.model.DiaryEntry;
 import com.moke.diary.model.DiaryRevision;
 import com.moke.diary.model.DiaryWithMedia;
+import com.moke.diary.model.MediaAttachment;
 import com.moke.diary.model.Mood;
+import com.moke.diary.util.BackupManager;
 import com.moke.diary.util.ColorUtil;
 import com.moke.diary.util.CryptoUtil;
 import com.moke.diary.util.DateUtil;
 import com.moke.diary.util.LockSession;
+import com.moke.diary.util.MediaStorage;
 import com.moke.diary.util.MokeLog;
 import com.moke.diary.util.ShareUtil;
 
@@ -47,6 +50,7 @@ public class DiaryDetailActivity extends BaseLockActivity {
     private DiaryEntry currentEntry;
     private String decryptedContent;
     private String sessionPassword;
+    private boolean initialLoadDone;
 
     /** 创建打开指定日记详情的 Intent。 */
     public static Intent createIntent(Context context, long diaryId) {
@@ -131,6 +135,7 @@ public class DiaryDetailActivity extends BaseLockActivity {
         binding.timelineRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.timelineRecyclerView.setAdapter(revisionAdapter);
         revisionAdapter.setItems(revisions, currentEntry.backgroundColor);
+        initialLoadDone = true;
     }
 
     /** 根据日记背景色亮度设置详情页文字颜色，避免深色主题白字配浅色背景 */
@@ -181,12 +186,23 @@ public class DiaryDetailActivity extends BaseLockActivity {
     private void deleteDiary() {
         MokeLog.d("[Detail] 删除日记 id=" + diaryId);
         executor.execute(() -> {
+            List<MediaAttachment> media = diaryDao.getMediaByDiaryId(diaryId);
+            MediaStorage.deleteFiles(media);
             diaryDao.deleteDiary(currentEntry);
+            BackupManager.exportBackupAsync(DiaryDetailActivity.this);
             runOnUiThread(() -> {
-                Toast.makeText(this, "已删除", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.delete_success, Toast.LENGTH_SHORT).show();
                 finish();
             });
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (initialLoadDone) {
+            loadDiary();
+        }
     }
 
     @Override

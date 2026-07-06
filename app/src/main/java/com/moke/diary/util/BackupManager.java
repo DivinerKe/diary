@@ -193,6 +193,16 @@ public final class BackupManager {
         return findNewestBackupUri(context) != null;
     }
 
+    /** 统计可参与合并恢复的备份 zip 数量（不执行导入） */
+    public static int countBackupSources(Context context, Uri restoreTreeUri) {
+        try {
+            return collectAllBackupSources(context, restoreTreeUri, null).size();
+        } catch (Exception e) {
+            MokeLog.e("[Backup] countBackupSources 异常", e);
+            return 0;
+        }
+    }
+
     /** 导出全部日记到 zip 并写入备份目录，无日记时返回 false */
     public static boolean exportBackup(Context context) {
         try {

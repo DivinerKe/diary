@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.TypedValue;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -33,6 +35,7 @@ import com.moke.diary.db.DiaryDatabase;
 import com.moke.diary.model.DiaryWithMedia;
 import com.moke.diary.model.Mood;
 import com.moke.diary.util.BackupManager;
+import com.moke.diary.util.EncryptionHelper;
 import com.moke.diary.util.LockSession;
 import com.moke.diary.util.LockScreenUtil;
 import com.moke.diary.util.MokeLog;
@@ -61,6 +64,9 @@ public class MainActivity extends BaseThemedActivity {
     private TextView lockMessageText;
     /** 选择备份目录后是否立即执行一次备份 */
     private boolean pendingBackupAfterFolder;
+    private final Handler searchHandler = new Handler(Looper.getMainLooper());
+    private Runnable pendingSearch;
+    private int searchGeneration = 0;
 
     /** 用户授权备份写入目录（SAF OPEN_DOCUMENT_TREE） */
     private final ActivityResultLauncher<Intent> pickBackupFolderLauncher =
@@ -91,7 +97,7 @@ public class MainActivity extends BaseThemedActivity {
                 Uri treeUri = result.getData().getData();
                 if (treeUri != null) {
                     BackupManager.saveTreeUri(this, treeUri);
-                    performRestoreFromFolder(treeUri);
+                    confirmRestore(treeUri);
                 }
             });
 
@@ -192,7 +198,7 @@ public class MainActivity extends BaseThemedActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                loadDiaries();
+                scheduleLoadDiaries();
             }
 
             @Override
@@ -200,9 +206,20 @@ public class MainActivity extends BaseThemedActivity {
             }
         });
         binding.searchInput.setOnEditorActionListener((v, actionId, event) -> {
+            if (pendingSearch != null) {
+                searchHandler.removeCallbacks(pendingSearch);
+            }
             loadDiaries();
             return true;
         });
+    }
+
+    private void scheduleLoadDiaries() {
+        if (pendingSearch != null) {
+            searchHandler.removeCallbacks(pendingSearch);
+        }
+        pendingSearch = this::loadDiaries;
+        searchHandler.postDelayed(pendingSearch, 300);
     }
 
     private void setupFab() {
@@ -273,6 +290,7 @@ public class MainActivity extends BaseThemedActivity {
 
         String keyword = binding.searchInput.getText() != null
                 ? binding.searchInput.getText().toString().trim() : "";
+        final int generation = ++searchGeneration;
 
         executor.execute(() -> {
             List<DiaryWithMedia> diaries;
@@ -287,7 +305,7 @@ public class MainActivity extends BaseThemedActivity {
             }
 
             runOnUiThread(() -> {
-                if (isLocked()) {
+                if (isLocked() || generation != searchGeneration) {
                     return;
                 }
                 adapter.setItems(diaries, keyword);
@@ -403,7 +421,7 @@ public class MainActivity extends BaseThemedActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setTitle(R.string.restore_backup)
                 .setMessage(manual ? R.string.restore_confirm : R.string.restore_prompt)
-                .setPositiveButton(R.string.confirm, (dialog, which) -> performRestore())
+                .setPositiveButton(R.string.confirm, (dialog, which) -> confirmRestore(null))
                 .setNegativeButton(R.string.cancel, null);
         builder.setNeutralButton(R.string.restore_pick_folder, (dialog, which) -> launchPickBackupForRestore());
         builder.show();
@@ -413,8 +431,34 @@ public class MainActivity extends BaseThemedActivity {
         pickRestoreFolderLauncher.launch(BackupManager.createOpenTreeIntent());
     }
 
+    /** 恢复前展示本地/备份数量，确认后执行合并恢复 */
+    private void confirmRestore(Uri treeUri) {
+        executor.execute(() -> {
+            int localCount = diaryDao.getDiaryCount();
+            int backupCount = BackupManager.countBackupSources(this, treeUri);
+            runOnUiThread(() -> {
+                if (backupCount == 0) {
+                    Toast.makeText(this, R.string.restore_failed, Toast.LENGTH_LONG).show();
+                    return;
+                }
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.restore_backup)
+                        .setMessage(getString(R.string.restore_overwrite_warning, localCount, backupCount))
+                        .setPositiveButton(R.string.confirm, (dialog, which) -> {
+                            if (treeUri != null) {
+                                performRestoreFromFolder(treeUri);
+                            } else {
+                                performRestoreInternal();
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null)
+                        .show();
+            });
+        });
+    }
+
     /** 扫描并合并恢复全部备份；无自动权限时引导选手动选文件夹 */
-    private void performRestore() {
+    private void performRestoreInternal() {
         MokeLog.d("[Main] 开始自动恢复");
         if (BackupManager.needsManualRestorePick(this)) {
             launchPickBackupForRestore();
@@ -444,8 +488,7 @@ public class MainActivity extends BaseThemedActivity {
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             updateLockState();
         } else {
-            Toast.makeText(this, R.string.restore_pick_hint, Toast.LENGTH_LONG).show();
-            launchPickBackupForRestore();
+            Toast.makeText(this, R.string.restore_failed, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -500,7 +543,11 @@ public class MainActivity extends BaseThemedActivity {
             String question = questionSpinner.getSelectedItem().toString();
 
             if (TextUtils.isEmpty(password)) {
-                Toast.makeText(this, R.string.password_hint, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.password_set_hint, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!PasswordManager.isValidLength(password)) {
+                Toast.makeText(this, R.string.password_length_required, Toast.LENGTH_SHORT).show();
                 return;
             }
             if (!password.equals(confirm)) {
@@ -539,21 +586,39 @@ public class MainActivity extends BaseThemedActivity {
             String confirm = textOf(confirmInput);
 
             if (TextUtils.isEmpty(newPassword)) {
-                Toast.makeText(this, R.string.password_hint, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.new_password_hint, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!PasswordManager.isValidLength(newPassword)) {
+                Toast.makeText(this, R.string.password_length_required, Toast.LENGTH_SHORT).show();
                 return;
             }
             if (!newPassword.equals(confirm)) {
                 Toast.makeText(this, R.string.password_mismatch, Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (!PasswordManager.changePassword(this, oldPassword, newPassword)) {
+            if (!PasswordManager.verifyPassword(this, oldPassword)) {
                 Toast.makeText(this, R.string.wrong_password, Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            LockSession.unlock(newPassword);
-            Toast.makeText(this, R.string.password_changed_success, Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            executor.execute(() -> {
+                long failedId = EncryptionHelper.reEncryptAllEntries(this, oldPassword, newPassword);
+                if (failedId >= 0) {
+                    runOnUiThread(() -> {
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                        Toast.makeText(this, R.string.reencrypt_failed, Toast.LENGTH_LONG).show();
+                    });
+                    return;
+                }
+                PasswordManager.changePassword(this, oldPassword, newPassword);
+                runOnUiThread(() -> {
+                    LockSession.unlock(newPassword);
+                    Toast.makeText(this, R.string.password_changed_with_reencrypt, Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                });
+            });
         }));
         dialog.show();
     }
@@ -572,12 +637,15 @@ public class MainActivity extends BaseThemedActivity {
 
         questionText.setText(PasswordManager.getSecurityQuestion(this));
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setTitle(R.string.recover_password)
                 .setView(view)
                 .setPositiveButton(R.string.confirm, null)
-                .setNegativeButton(R.string.cancel, null)
-                .create();
+                .setNegativeButton(R.string.cancel, null);
+        if (EncryptionHelper.countEncryptedEntries(this) > 0) {
+            builder.setMessage(R.string.reset_password_encrypted_warning);
+        }
+        AlertDialog dialog = builder.create();
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String answer = textOf(answerInput);
             String newPassword = textOf(newInput);
@@ -588,7 +656,11 @@ public class MainActivity extends BaseThemedActivity {
                 return;
             }
             if (TextUtils.isEmpty(newPassword)) {
-                Toast.makeText(this, R.string.password_hint, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.new_password_hint, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!PasswordManager.isValidLength(newPassword)) {
+                Toast.makeText(this, R.string.password_length_required, Toast.LENGTH_SHORT).show();
                 return;
             }
             if (!newPassword.equals(confirm)) {
@@ -617,6 +689,9 @@ public class MainActivity extends BaseThemedActivity {
 
     @Override
     protected void onDestroy() {
+        if (pendingSearch != null) {
+            searchHandler.removeCallbacks(pendingSearch);
+        }
         super.onDestroy();
         executor.shutdown();
     }
